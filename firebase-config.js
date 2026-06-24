@@ -11,13 +11,14 @@
    Con credenciales válidas, se sincronizan por internet entre equipos distintos.
    ============================================================ */
 window.INFO7_FIREBASE_CONFIG = {
-  apiKey:            "",   // ej. "AIzaSyD-xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  authDomain:        "",   // ej. "info7-cintillo.firebaseapp.com"
-  databaseURL:       "",   // ej. "https://info7-cintillo-default-rtdb.firebaseio.com"  ← IMPRESCINDIBLE
-  projectId:         "",   // ej. "info7-cintillo"
-  storageBucket:     "",   // ej. "info7-cintillo.appspot.com"
-  messagingSenderId: "",   // ej. "123456789012"
-  appId:             "",   // ej. "1:123456789012:web:abcdef123456"
+  apiKey: "AIzaSyBxMXVODvKnREKlBGYYCHk-2jJPlRI4C80",
+  authDomain: "infographics-62747.firebaseapp.com",
+  databaseURL: "https://infographics-62747-default-rtdb.firebaseio.com",
+  projectId: "infographics-62747",
+  storageBucket: "infographics-62747.firebasestorage.app",
+  messagingSenderId: "748846969922",
+  appId: "1:748846969922:web:b5a95f4086891c09a729db",
+  measurementId: "G-R8LQHPMH6P",
 
   // Ruta donde se guarda el estado del cintillo. Cambia el sufijo para tener
   // varios "canales" independientes (ej. "info7/estudioA", "info7/estudioB").
