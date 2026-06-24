@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INFO 7 · Cintillo — Inicio</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;display:grid;place-items:center;background:radial-gradient(120% 90% at 70% 12%,#16233a,#0a1322);font-family:'Barlow',system-ui,sans-serif;color:#e7edf6;padding:24px}
+  .card{width:100%;max-width:560px;background:linear-gradient(180deg,#16223b,#121a2e);border:1px solid #24345a;border-radius:18px;padding:34px 32px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  h1{font-family:'Saira Condensed';font-weight:800;font-size:30px;letter-spacing:.04em;display:flex;align-items:center;gap:12px}
+  .dot{width:13px;height:13px;border-radius:50%;background:#ff3b30;box-shadow:0 0 12px #ff3b30}
+  p{color:#9fb2cc;font-size:15px;line-height:1.5;margin-top:10px}
+  .links{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
+  a{display:block;text-decoration:none;border-radius:12px;padding:18px 16px;text-align:center;font-family:'Saira Condensed';font-weight:700;font-size:18px;letter-spacing:.04em;text-transform:uppercase;transition:filter .15s}
+  a:hover{filter:brightness(1.1)}
+  .ctrl{background:linear-gradient(180deg,#f47b20,#d4640f);color:#fff}
+  .rndr{background:#0e131a;border:1px solid #2a3340;color:#cfe0f5}
+  small{display:block;color:#6f86ad;font-size:12px;margin-top:6px;font-family:'Barlow';letter-spacing:0;text-transform:none;font-weight:500}
+  .foot{margin-top:22px;font-size:12.5px;color:#6f86ad;line-height:1.5}
+  code{background:#0e131a;border:1px solid #2a3340;border-radius:5px;padding:1px 6px;font-size:12px;color:#cfe0f5}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1><span class="dot"></span> INFO 7 · Cintillo</h1>
+    <p>Sistema de lower third para transmisión en vivo. La consola controla; el render es la señal limpia que entra a vMix / OBS.</p>
+    <div class="links">
+      <a class="ctrl" href="control.html">Consola<small>operador · editar</small></a>
+      <a class="rndr" href="render.html">Render<small>señal limpia · vMix</small></a>
+    </div>
+    <div class="foot">
+      Para sincronizar entre computadoras distintas, configura tus credenciales en <code>firebase-config.js</code>. Sin credenciales, ambas páginas se sincronizan solo dentro del mismo navegador. Ver <code>README.md</code>.
+    </div>
+  </div>
+</body>
+</html>
