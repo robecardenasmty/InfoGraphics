@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  @keyframes gPulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+  @keyframes gTicker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @keyframes gFadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes gFadeOut{from{opacity:1;}to{opacity:0;}}
+  @keyframes gLeftIn{from{opacity:0;transform:translateX(-70px);}to{opacity:1;transform:translateX(0);}}
+  @keyframes gLeftOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(-70px);}}
+  @keyframes gRightIn{from{opacity:0;transform:translateX(70px);}to{opacity:1;transform:translateX(0);}}
+  @keyframes gRightOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(70px);}}
+  @keyframes gUpIn{from{opacity:0;transform:translateY(48px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes gUpOut{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(-48px);}}
+  @keyframes gScaleIn{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:scale(1);}}
+  @keyframes gScaleOut{from{opacity:1;transform:scale(1);}to{opacity:0;transform:scale(.7);}}
+  @keyframes gWipeRIn{from{clip-path:inset(0 100% 0 0);}to{clip-path:inset(0 0 0 0);}}
+  @keyframes gWipeROut{from{clip-path:inset(0 0 0 0);}to{clip-path:inset(0 0 0 100%);}}
+  @keyframes gExpandIn{from{opacity:.35;transform:scaleX(0);}to{opacity:1;transform:scaleX(1);}}
+  @keyframes gExpandOut{from{opacity:1;transform:scaleX(1);}to{opacity:.35;transform:scaleX(0);}}
+  @keyframes gRiseIn{0%{opacity:0;transform:translateY(72px);}70%{opacity:1;transform:translateY(-10px);}100%{opacity:1;transform:translateY(0);}}
+  @keyframes gRiseOut{0%{opacity:1;transform:translateY(0);}30%{transform:translateY(-10px);}100%{opacity:0;transform:translateY(72px);}}
+  @keyframes gZoomIn{from{opacity:0;transform:scale(1.4);}to{opacity:1;transform:scale(1);}}
+  @keyframes gZoomOut{from{opacity:1;transform:scale(1);}to{opacity:0;transform:scale(1.4);}}
+</style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+  <div style="{{ bgStyle }}"></div>
+
+  <sc-if value="{{ isBack }}" hint-placeholder-val="{{ false }}">
+    <div style="{{ st.back }}" onAnimationEnd="{{ animEnd.back }}">
+      <div style="{{ backInner }}">
+        <div style="{{ backKickerWrap }}"><span style="{{ backKickerBar }}"></span><span style="{{ backKickerTxt }}">{{ txt.backKicker }}</span></div>
+        <div style="{{ backTitleSty }}">{{ txt.backTitle }}</div>
+        <div style="{{ backRule }}"></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isLower }}" hint-placeholder-val="{{ true }}">
+    <sc-if value="{{ show.topbar }}" hint-placeholder-val="{{ true }}">
+      <div style="{{ st.topbar }}" onAnimationEnd="{{ animEnd.topbar }}">
+        <sc-if value="{{ show.envivo }}" hint-placeholder-val="{{ true }}">
+          <span style="{{ envivoBadge }}"><span style="{{ envivoDot }}"></span>{{ txt.envivoLabel }}</span>
+        </sc-if>
+        <span style="font-family:'Saira Condensed';font-weight:600;font-size:25px;letter-spacing:.05em;white-space:nowrap;color:#fff;">{{ txt.ubicacion }}</span>
+        <span style="width:2px;height:24px;background:var(--c-ac);"></span>
+        <span style="font-family:'Saira Condensed';font-weight:600;font-size:25px;letter-spacing:.05em;white-space:nowrap;color:var(--c-ac);">{{ txt.hora }}</span>
+      </div>
+    </sc-if>
+
+    <div style="{{ ltStyle }}">
+      <sc-if value="{{ show.logo }}" hint-placeholder-val="{{ true }}">
+        <img src="assets/info7-logo.png" alt="INFO 7" style="{{ st.logo }}" onAnimationEnd="{{ animEnd.logo }}" />
+      </sc-if>
+
+      <div style="{{ colWrap }}">
+        <sc-if value="{{ show.cejilla }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ st.cejilla }}" onAnimationEnd="{{ animEnd.cejilla }}">
+            <sc-if value="{{ catBadge }}" hint-placeholder-val="{{ false }}"><span style="{{ catBadgeSty }}">{{ catTag }}</span></sc-if>
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:36px;letter-spacing:.04em;white-space:nowrap;color:#fff;line-height:1;">{{ txt.cejilla }}</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ show.barraAzul }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ st.barraAzul }}" onAnimationEnd="{{ animEnd.barraAzul }}">
+            <span style="color:var(--c-ac);font-size:22px;line-height:1;">▶</span>
+            <span style="font-family:'Saira Condensed';font-weight:700;font-size:33px;letter-spacing:.03em;white-space:nowrap;color:#fff;line-height:1;">{{ txt.nombre }}</span>
+            <span style="width:2px;height:30px;flex:none;background:rgba(255,255,255,.32);"></span>
+            <span style="font-family:'Saira Condensed';font-weight:500;font-size:30px;letter-spacing:.03em;white-space:nowrap;color:rgba(255,255,255,.86);line-height:1;">{{ txt.cargo }}</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ show.barraBlanca }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ st.barraBlanca }}" onAnimationEnd="{{ animEnd.barraBlanca }}">
+            <div style="font-family:'Saira Condensed';font-weight:700;font-size:47px;line-height:1.04;letter-spacing:.005em;text-transform:uppercase;color:var(--c-ink);text-wrap:balance;">{{ txt.titular }}</div>
+            <sc-if value="{{ showSegunda }}" hint-placeholder-val="{{ true }}">
+              <div style="font-family:'Barlow';font-weight:500;font-size:27px;line-height:1.2;color:#52627a;margin-top:9px;">{{ txt.segunda }}</div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{ show.ticker }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ st.ticker }}" onAnimationEnd="{{ animEnd.ticker }}">
+        <div style="{{ tickerLabelSty }}">{{ txt.tickerLabel }}</div>
+        <div style="flex:1;min-width:0;overflow:hidden;background:linear-gradient(180deg,var(--c-ink),var(--c-ink-d));display:flex;align-items:center;">
+          <div style="{{ tickerInner }}">
+            <span style="padding:0 40px;">{{ txt.ticker }}</span><span style="color:var(--c-ac);">●</span><span style="padding:0 40px;">{{ txt.ticker }}</span><span style="color:var(--c-ac);">●</span><span style="padding:0 40px;">{{ txt.ticker }}</span><span style="color:var(--c-ac);">●</span><span style="padding:0 40px;">{{ txt.ticker }}</span><span style="color:var(--c-ac);">●</span>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:640,&quot;height&quot;:360},&quot;gstate&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;animate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false},&quot;tickers&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.ELEMS = ['logo','topbar','cejilla','barraAzul','barraBlanca','ticker','back'];
+    this.INKF = {fade:'gFadeIn',left:'gLeftIn',right:'gRightIn',up:'gUpIn',scale:'gScaleIn',wipeR:'gWipeRIn',expand:'gExpandIn',rise:'gRiseIn',zoom:'gZoomIn'};
+    this.OUTKF = {fade:'gFadeOut',left:'gLeftOut',right:'gRightOut',up:'gUpOut',scale:'gScaleOut',wipeR:'gWipeROut',expand:'gExpandOut',rise:'gRiseOut',zoom:'gZoomOut'};
+    this.STAG_IN = {logo:0, topbar:90, cejilla:150, barraAzul:240, barraBlanca:330, ticker:120, back:0};
+    this.STAG_OUT = {ticker:0, barraBlanca:80, barraAzul:160, cejilla:230, topbar:300, logo:360, back:0};
+    this.CATS = {
+      breaking:    {tag:'', badge:false,  colors:{cejilla:'#ba0000', barra:'#003399', acento:'#29abe2', ink:'#0a1f44'}, back:['#10213f','#06101f']},
+      deportes:    {tag:'DEPORTES', badge:true,  colors:{cejilla:'#1f9d34', barra:'#0e5d22', acento:'#eaff00', ink:'#0b3d1f'}, back:['#0e3d1f','#05160c']},
+      espectaculos:{tag:'ESPECTÁCULOS', badge:true, colors:{cejilla:'#c01f7a', barra:'#3a1150', acento:'#ff4fd8', ink:'#2a0b3d'}, back:['#2c0b40','#120417']},
+      generico:    {tag:'', badge:false, colors:{cejilla:'#1b1b1b', barra:'#2c3340', acento:'#f47b20', ink:'#141821'}, back:['#1b2230','#0a0e15']},
+    };
+    const t=(props&&props.tickers)||{}; const hidden={};
+    if(props&&props.animate){ Object.keys(t).forEach(k=>{ const c=t[k]||{}; if((c.k||0)>0 && (c.dir||'in')==='in') hidden[k]=true; }); }
+    this.state = { act:{}, hidden, phase:{}, delays:{} };
+  }
+  componentDidMount(){ if(this.props.animate) this.applyTickers({}, this.props.tickers||{}); }
+  componentDidUpdate(prev){ if(!this.props.animate) return; this.applyTickers(prev.tickers||{}, this.props.tickers||{}); }
+  applyTickers(prevT, t){
+    t=t||{}; prevT=prevT||{};
+    Object.keys(t).forEach(k=>{ const c=t[k]||{}; const pk=(prevT[k]&&prevT[k].k)||0; if((c.k||0)>0 && (c.k||0)!==pk) this.fire(k, c.dir||'in', c.d||0); });
+  }
+  fire(k,dir,delay){
+    if(!this._t) this._t={}; if(!this._a) this._a={};
+    clearTimeout(this._t[k]); clearTimeout(this._a[k]);
+    const speed=(this.props.gstate&&this.props.gstate.speed)||600;
+    this.setState(s=>({ phase:{...s.phase,[k]:dir}, delays:{...s.delays,[k]:delay||0}, hidden:{...s.hidden,[k]: dir==='in'}, act:{...s.act,[k]:false} }));
+    const on=()=>this.setState(s=> s.act[k]?null:({ act:{...s.act,[k]:true} }));
+    requestAnimationFrame(()=>requestAnimationFrame(on));
+    this._a[k]=setTimeout(on,48);
+    this._t[k]=setTimeout(()=>this.settle(k), speed+(delay||0)+200);
+  }
+  settle(k){ this.setState(s=>{ const isOut=s.phase[k]==='out'; return { act:{...s.act,[k]:false}, hidden:{...s.hidden,[k]:isOut} }; }); }
+  animEnd(k){ if(this.props.animate) this.settle(k); }
+
+  darken(hex,p){ hex=hex||'#000'; let n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255; const f=1-p/100; r=Math.round(r*f);g=Math.round(g*f);b=Math.round(b*f); return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1); }
+
+  demo(){
+    return { mode:'lower', category:'breaking',
+      show:{logo:true,topbar:true,envivo:true,cejilla:true,barraAzul:true,barraBlanca:true,ticker:false},
+      txt:{cejilla:'ÚLTIMA HORA',envivoLabel:'EN VIVO',ubicacion:'MONTERREY, N.L.',hora:'15:59',nombre:'REPORTERO INFO 7',cargo:'DESDE LA ZONA',titular:'Incendio moviliza a cuerpos de auxilio en zona comercial',segunda:'Autoridades piden evitar la zona',tickerLabel:'EN DESARROLLO',ticker:'Cuerpos de emergencia trabajan en el lugar · Más información en desarrollo',backTitle:'EL TEMA DEL DÍA',backKicker:'INFO 7 PRESENTA'},
+      anim:{logo:{in:'scale',out:'scale'},topbar:{in:'right',out:'right'},cejilla:{in:'wipeR',out:'wipeR'},barraAzul:{in:'expand',out:'expand'},barraBlanca:{in:'rise',out:'rise'},ticker:{in:'up',out:'up'},back:{in:'fade',out:'fade'}},
+      speed:600, tickerSpeed:140, bgMode:'transparente', chromaGreen:'#00b140', chromaBlue:'#1f60c4', shadows:false };
+  }
+
+  animStyle(k){
+    if(!this.props.animate) return {};
+    const {act,hidden,phase}=this.state;
+    const g=this.props.gstate||{}; const anim=(g.anim&&g.anim[k])||{in:'fade',out:'fade'};
+    const speed=g.speed||600;
+    if(act[k]){
+      const dir=phase[k]||'in';
+      const key=dir==='in'?anim.in:anim.out;
+      const name=dir==='in'?(this.INKF[key]||'gFadeIn'):(this.OUTKF[key]||'gFadeOut');
+      const ease=dir==='in'?'cubic-bezier(.22,.61,.36,1)':'cubic-bezier(.55,.06,.68,.19)';
+      const delay=(this.state.delays&&this.state.delays[k])||0;
+      const origin=key==='expand'?'left center':'center center';
+      return {animation:`${name} ${speed}ms ${ease} ${delay}ms both`, transformOrigin:origin, WebkitTransformOrigin:origin};
+    }
+    if(hidden[k]) return {opacity:0, pointerEvents:'none'};
+    return {};
+  }
+
+  renderVals(){
+    const g = this.props.gstate || this.demo();
+    const cat = this.CATS[g.category] || this.CATS.breaking;
+    const c = g.colors || cat.colors;
+    const show = g.show || {}; const txt = g.txt || {};
+    const shadows = !!g.shadows;
+    const acD=this.darken(c.acento,15);
+    const themeVars = {
+      '--c-cej':c.cejilla,'--c-cej-d':this.darken(c.cejilla,22),
+      '--c-bar':c.barra,'--c-bar-d':this.darken(c.barra,26),
+      '--c-ac':c.acento,'--c-ac-d':acD,
+      '--c-ink':c.ink,'--c-ink-d':this.darken(c.ink,35),
+    };
+    const isBack = g.mode==='back';
+    const rootStyle={position:'relative',width:'1920px',height:'1080px',overflow:'hidden',fontFamily:"'Barlow',sans-serif", ...themeVars};
+    const bgs={estudio:'radial-gradient(120% 90% at 70% 18%, #2a3b57 0%, #16233a 42%, #0a1322 100%)', verde:g.chromaGreen||'#00b140', azul:g.chromaBlue||'#1f60c4', transparente:'transparent', imagen:'transparent'};
+    let bgVal = bgs[g.bgMode]||'transparent';
+    if(isBack) bgVal = `radial-gradient(120% 120% at 80% 0%, ${this.darken(cat.back[0],-10)} 0%, ${cat.back[0]} 45%, ${cat.back[1]} 100%)`;
+    const bgStyle={position:'absolute',inset:'0',background:bgVal};
+
+    // ticker timing
+    const tlen=(txt.ticker||'').length; const copyPx=tlen*13+80; const tSpd=g.tickerSpeed||140; const tickerDur=Math.max(6,(2*copyPx)/tSpd);
+    const tickerInner={display:'inline-flex',whiteSpace:'nowrap',animation:`gTicker ${tickerDur}s linear infinite`,fontFamily:"'Saira Condensed'",fontWeight:600,fontSize:'28px',letterSpacing:'.03em',color:'#fff'};
+
+    const ltStyle={position:'absolute',left:'56px',bottom: show.ticker?'88px':'60px',display:'flex',alignItems:'flex-end',gap:'22px'};
+    const colWrap={display:'flex',flexDirection:'column',alignItems:'flex-start',gap:'7px',filter: shadows?'drop-shadow(0 18px 34px rgba(0,0,0,.36))':'none'};
+
+    const base = {
+      logo:{width:'176px',height:'176px',flex:'none',alignSelf:'flex-end',filter: shadows?'drop-shadow(0 14px 26px rgba(0,0,0,.45))':'none'},
+      topbar:{position:'absolute',top:'40px',right:'40px',display:'flex',alignItems:'center',gap:'16px',height:'52px',padding:'0 18px',background:'linear-gradient(180deg,var(--c-ink),var(--c-ink-d))',borderRadius:'6px',borderBottom:'3px solid var(--c-ac)',boxShadow: shadows?'0 12px 28px rgba(0,0,0,.4)':'none'},
+      cejilla:{display:'inline-flex',alignItems:'center',gap:'13px',height:'56px',padding:'0 24px 0 20px',background:'linear-gradient(180deg,var(--c-cej),var(--c-cej-d))',borderLeft:'7px solid var(--c-ac)',borderRadius:'0 5px 0 0',boxShadow:'inset 0 1px 0 rgba(255,255,255,.18)'},
+      barraAzul:{display:'inline-flex',alignItems:'center',gap:'16px',height:'66px',padding:'0 26px 0 20px',background:'linear-gradient(180deg,var(--c-bar),var(--c-bar-d))',borderBottom:'3px solid var(--c-ac)',boxShadow:'inset 0 1px 0 rgba(255,255,255,.14)'},
+      barraBlanca:{width:'1500px',maxWidth:'1500px',background:'linear-gradient(180deg,#ffffff,#eef1f5)',borderTop:'5px solid var(--c-ac)',borderRadius:'0 0 6px 6px',padding:'20px 30px'},
+      ticker:{position:'absolute',left:'0',right:'0',bottom:'0',height:'60px',display:'flex',alignItems:'stretch',boxShadow: shadows?'0 -6px 22px rgba(0,0,0,.32)':'none'},
+      back:{position:'absolute',inset:'0',display:'flex',alignItems:'center',justifyContent:'flex-start'},
+    };
+    const st={}; const animEnd={};
+    this.ELEMS.forEach(k=>{ st[k]={...(base[k]||{}), ...this.animStyle(k)}; animEnd[k]=()=>this.animEnd(k); });
+
+    // back inner
+    const backInner={padding:'0 140px',maxWidth:'1500px',filter: shadows?'drop-shadow(0 20px 40px rgba(0,0,0,.4))':'none'};
+    const backKickerWrap={display:'inline-flex',alignItems:'center',gap:'16px',marginBottom:'24px'};
+    const backKickerBar={width:'64px',height:'8px',background:'var(--c-ac)',display:'inline-block'};
+    const backKickerTxt={fontFamily:"'Saira Condensed'",fontWeight:700,fontSize:'34px',letterSpacing:'.12em',color:'var(--c-ac)',textTransform:'uppercase'};
+    const backTitleSty={fontFamily:"'Saira Condensed'",fontWeight:800,fontSize:'132px',lineHeight:'.98',letterSpacing:'.01em',color:'#fff',textTransform:'uppercase',textWrap:'balance'};
+    const backRule={width:'220px',height:'8px',background:'var(--c-cej)',marginTop:'34px'};
+
+    const envivoBadge={display:'inline-flex',alignItems:'center',gap:'8px',whiteSpace:'nowrap',background:'linear-gradient(180deg,var(--c-cej),var(--c-cej-d))',color:'#fff',fontFamily:"'Saira Condensed'",fontWeight:700,fontSize:'23px',letterSpacing:'.07em',padding:'4px 13px',borderRadius:'4px'};
+    const envivoDot={width:'10px',height:'10px',borderRadius:'50%',background:'#fff',animation:'gPulse 1.1s ease-in-out infinite'};
+    const tickerLabelSty={flex:'none',display:'flex',alignItems:'center',padding:'0 22px',background:'linear-gradient(180deg,var(--c-cej),var(--c-cej-d))',fontFamily:"'Saira Condensed'",fontWeight:800,fontSize:'28px',letterSpacing:'.06em',color:'#fff',borderRight:'4px solid var(--c-ac)',whiteSpace:'nowrap'};
+    const catBadgeSty={fontFamily:"'Saira Condensed'",fontWeight:800,fontSize:'24px',letterSpacing:'.08em',color:'var(--c-cej)',background:'#fff',padding:'3px 11px',borderRadius:'4px',lineHeight:'1'};
+
+    return {
+      rootStyle, bgStyle, st, animEnd, ltStyle, colWrap, themeVars,
+      isBack, isLower: !isBack, show, txt,
+      showSegunda: show.barraBlanca && !!txt.segunda && (''+txt.segunda).trim().length>0,
+      tickerInner, envivoBadge, envivoDot, tickerLabelSty,
+      backInner, backKickerWrap, backKickerBar, backKickerTxt, backTitleSty, backRule,
+      catBadge: !!cat.badge && !!cat.tag, catBadgeSty, catTag: cat.tag,
+    };
+  }
+}
+</script>
+</body>
+</html>

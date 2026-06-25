@@ -11,16 +11,22 @@
    Con credenciales válidas, se sincronizan por internet entre equipos distintos.
    ============================================================ */
 window.INFO7_FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBxMXVODvKnREKlBGYYCHk-2jJPlRI4C80",
-  authDomain: "infographics-62747.firebaseapp.com",
-  databaseURL: "https://infographics-62747-default-rtdb.firebaseio.com",
-  projectId: "infographics-62747",
-  storageBucket: "infographics-62747.firebasestorage.app",
-  messagingSenderId: "748846969922",
-  appId: "1:748846969922:web:b5a95f4086891c09a729db",
-  measurementId: "G-R8LQHPMH6P",
+  apiKey:            "",   // ej. "AIzaSyD-xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  authDomain:        "",   // ej. "info7-cintillo.firebaseapp.com"
+  databaseURL:       "",   // ej. "https://info7-cintillo-default-rtdb.firebaseio.com"  ← IMPRESCINDIBLE
+  projectId:         "",   // ej. "info7-cintillo"
+  storageBucket:     "",   // ej. "info7-cintillo.appspot.com"
+  messagingSenderId: "",   // ej. "123456789012"
+  appId:             "",   // ej. "1:123456789012:web:abcdef123456"
 
   // Ruta donde se guarda el estado del cintillo. Cambia el sufijo para tener
   // varios "canales" independientes (ej. "info7/estudioA", "info7/estudioB").
-  path: "info7/cintillo"
+  path: "info7/cintillo",
+
+  // Ruta donde se guarda la ESCALETA compartida entre operadores.
+  rundownPath: "info7/rundown",
+
+  // Ruta donde el Apps Script del Excel del productor publica la escaleta.
+  // El control la ESCUCHA y refresca las horas en tiempo real.
+  ingestPath: "info7/ingest"
 };

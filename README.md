@@ -1,17 +1,31 @@
-# INFO 7 · Cintillo en vivo (control + render)
+# INFO 7 · Suite de gráficos en vivo (Preview/Live + TAKE)
 
-Sistema de **lower third / cintillo** para transmisión en vivo, listo para **GitHub + Vercel**, con sincronización en tiempo real por **Firebase Realtime Database**.
+Sistema de **gráficos para transmisión** (lower thirds, backs y categorías: Breaking, Deportes, Espectáculos, Genérico), con flujo de **switcher profesional**: editas en **Preview**, lo mandas al aire con **TAKE** y sale en el **render** que entra a vMix. Listo para **GitHub + Vercel** con sincronización en tiempo real por **Firebase Realtime Database**.
 
 | Archivo | Qué es | Dónde se usa |
 |---|---|---|
-| `control.html` | **Consola del operador**: textos de INFO 7, plantillas, animaciones de entrada/salida, colores, chroma, sombras, ticker. | El operador, en cualquier PC o tablet. |
-| `render.html` | **Señal limpia Full HD 1920×1080, fondo 100% transparente** (canal alfa). Escucha la base de datos y dibuja/anima el cintillo. | Se mete fijo a **vMix / OBS** como *Browser Input / Browser Source*. |
-| `index.html` | Portada con enlaces a ambas. | Opcional. |
+| `control.html` | **Consola del operador**: cajas **Preview \| Programa**, botón **TAKE / SACAR**, pestañas (Categoría, Textos, Animación, Colores, Elementos·Fondo). | El operador, en cualquier PC o tablet. |
+| `render.html` | **Señal limpia Full HD 1920×1080, fondo transparente** (alfa). Recibe el PROGRAMA y reproduce la animación de entrada/salida. | Se mete fijo a **vMix / OBS** como *Browser Input / Source*. |
+| `Grafico.dc.html` | **Motor gráfico** compartido por consola y render. **No borrar** — los dos lo cargan. | — |
+| `support.js` | Runtime de los gráficos. No se edita. | — |
+| `index.html` | Portada con enlaces a consola y render. | Opcional. |
 | `firebase-config.js` | **Tus credenciales** de Firebase (lo único que editas). | — |
 | `firebase-bridge.js` | Puente con la base de datos. No se edita. | — |
+| `escaleta-seed.js` | **Escaleta maestra** del matutino (5 horas + estrategia) ya cargada. | — |
+| `xlsx-ingest.js` | Lector de Excel en el navegador (para el botón **Importar Excel**). No se edita. | — |
+| `apps-script/Code.gs` | **Google Apps Script** para publicar la escaleta del productor a Firebase en tiempo real. | Se pega en la Hoja de Google del productor. |
 | `vercel.json` | Config de despliegue. | — |
 
-> **Sin credenciales** el sistema funciona en **modo local** (BroadcastChannel): control y render se sincronizan solo si están abiertos **en el mismo navegador y origen**. Para sincronizar **entre equipos distintos por internet**, configura Firebase (abajo).
+> ⚠️ **Importante:** este proyecto es **multi-archivo** (la consola y el render cargan `Grafico.dc.html` y `support.js`). Súbelos **todos juntos** y **sírvelos por web** (Vercel). No funciona abriendo el `.html` con doble clic desde el disco (necesita estar servido por HTTP) — para eso está el deploy en Vercel.
+
+## Flujo de trabajo (switcher)
+
+1. En **Preview** eliges categoría, escribes textos y ajustas colores/animación. Nada de esto sale al aire todavía.
+2. Pulsas **TAKE**: lo que ves en Preview pasa a **Programa** y se reproduce en el render con su animación de entrada.
+3. Pulsas **◀ SACAR** para retirarlo del aire (animación de salida).
+4. Mientras algo está al aire, puedes preparar el siguiente gráfico en Preview sin afectar la señal.
+
+> **Sin credenciales** Firebase, control y render se sincronizan solo en el **mismo navegador** (BroadcastChannel). Para sincronizar **entre equipos distintos**, configura Firebase (abajo).
 
 ---
 
@@ -95,7 +109,7 @@ vercel --prod # publicar a producción
 ---
 
 ## Notas técnicas
-- `render.html` y `control.html` son **autocontenidos** (fuentes, logo, motor de animación y export PNG embebidos). Lo único externo son `firebase-config.js` y `firebase-bridge.js`.
-- Sincronía con **triple respaldo**: Firebase (entre equipos) → BroadcastChannel (mismo navegador) → `localStorage` (sondeo). Si Firebase no está configurado, sigue el modo local sin errores.
+- El proyecto es **multi-archivo**: `control.html` y `render.html` cargan `Grafico.dc.html` (motor gráfico) y `support.js` (runtime). Mantén los 4 juntos en el mismo directorio servido. React/fuentes se cargan de CDN, así que requiere internet (normal en un equipo de transmisión).
+- Sincronía con **triple respaldo**: Firebase (entre equipos) → BroadcastChannel (mismo navegador) → `localStorage`. Si Firebase no está configurado, sigue el modo local sin errores.
 - `render.html` se escala solo a cualquier resolución manteniendo el lienzo 1920×1080.
 - Exporta PNG **Full HD / 4K** con alfa desde la consola (tarjeta *Fondo & exportar*).
