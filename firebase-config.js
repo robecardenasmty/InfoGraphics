@@ -11,13 +11,13 @@
    Con credenciales válidas, se sincronizan por internet entre equipos distintos.
    ============================================================ */
 window.INFO7_FIREBASE_CONFIG = {
-  apiKey:            "PEGA_AQUI_TU_apiKey",
-  authDomain:        "PEGA_AQUI_TU_authDomain",
-  databaseURL:       "PEGA_AQUI_TU_databaseURL",   // ← IMPRESCINDIBLE (lo da Realtime Database)
-  projectId:         "PEGA_AQUI_TU_projectId",
-  storageBucket:     "PEGA_AQUI_TU_storageBucket",
-  messagingSenderId: "PEGA_AQUI_TU_messagingSenderId",
-  appId:             "PEGA_AQUI_TU_appId",
+  apiKey:            "AIzaSyBxMXVODvKnREKlBGYYCHk-2jJPlRI4C80",
+  authDomain:        "infographics-62747.firebaseapp.com",
+  databaseURL:       "https://infographics-62747-default-rtdb.firebaseio.com",   // ← IMPRESCINDIBLE (lo da Realtime Database)
+  projectId:         "infographics-62747",
+  storageBucket:     "infographics-62747.firebasestorage.app",
+  messagingSenderId: "748846969922",
+  appId:             "1:748846969922:web:b5a95f4086891c09a729db",
 
   // ── Rutas (NO las cambies si no sabes; deben coincidir con el Apps Script) ──
 
