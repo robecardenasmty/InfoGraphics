@@ -28,8 +28,8 @@
       escritura en la ruta /info7/ingest sólo mientras pruebas.)
    ============================================================================ */
 
-const FIREBASE_URL    = "https://TU-PROYECTO-default-rtdb.firebaseio.com"; // ← cámbialo
-const FIREBASE_SECRET = "TU_DATABASE_SECRET";                              // ← cámbialo
+const FIREBASE_URL    = "https://infographics-62747-default-rtdb.firebaseio.com"; // ← cámbialo
+const FIREBASE_SECRET = "ViOZeGQz2RrwHIiNEP9TBLeLS1uusBuoR2viIiUA";                              // ← cámbialo
 const INGEST_PATH     = "info7/ingest"; // debe coincidir con ingestPath de firebase-config.js
 
 /* ---- Disparadores ---------------------------------------------------------- */
