@@ -136,20 +136,48 @@
         continue;
       }
       const items = []; let seq = 0;
+      // Detecta columnas POR ENCABEZADO (no por letra fija): así el operador
+      // puede mover SEGUNDA LÍNEA / FUENTE / GANCHO a donde quiera y se entiende igual.
+      const norm = (s) => (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
+      let col = null;
+      for (const r of rows) {
+        if (norm(r.cells.A) === '#') {
+          col = {};
+          for (const letter in r.cells) {
+            const h = norm(r.cells[letter]);
+            if (h === '#') col.num = letter;
+            else if (h.indexOf('CONTENIDO') === 0) col.contenido = letter;
+            else if (h.indexOf('FORMATO') === 0) col.formato = letter;
+            else if (h.indexOf('DUR') === 0) col.dur = letter;
+            else if (h.indexOf('RESPONSABLE') === 0) col.responsable = letter;
+            else if (h.indexOf('SEGUNDA') === 0 || h.indexOf('BAJADA') === 0) col.segunda = letter;
+            else if (h.indexOf('GRAFICO') === 0 || h === 'GC' || h.indexOf('GC') === 0) col.graficos = letter;
+            else if (h.indexOf('FUENTE') === 0 || h.indexOf('INSUMO') === 0) col.fuente = letter;
+            else if (h.indexOf('GANCHO') === 0 || h.indexOf('EDITORIAL') === 0) col.gancho = letter;
+          }
+          break;
+        }
+      }
+      // Respaldo si no hay encabezado: posiciones clásicas A..I
+      if (!col) col = { num: 'A', contenido: 'B', formato: 'C', dur: 'D', responsable: 'E', graficos: 'F', fuente: 'G', gancho: 'H', segunda: 'I' };
+      const G_ = (cells, field) => { const L = col[field]; const v = L ? (cells[L] || '') : ''; return v.toString().trim(); };
+
+      let headerSeen = false;
       for (const r of rows) {
         const c = r.cells;
-        const A = (c.A || '').trim(), B = (c.B || '').trim(), C = (c.C || '').trim(), D = (c.D || '').trim(),
-          E = (c.E || '').trim(), F = (c.F || '').trim(), G = (c.G || '').trim(), H = (c.H || '').trim();
         if (r.rownum === 1) continue;
-        if (A === '#') continue;
+        const A = G_(c, 'num'), B = G_(c, 'contenido');
+        if (norm(A) === '#') { headerSeen = true; continue; }
         if (!A && !B) continue;
+        const C = G_(c, 'formato'), D = G_(c, 'dur'), E = G_(c, 'responsable'),
+          F = G_(c, 'graficos'), Gv = G_(c, 'fuente'), H = G_(c, 'gancho'), I = G_(c, 'segunda');
         const id = hk + '-' + (++seq);
         if (A && !B && isNaN(parseInt(A, 10))) { items.push({ id, type: 'block', label: A }); continue; }
         if (B.toUpperCase().startsWith('CORTE')) { items.push({ id, type: 'corte', label: B.replace(/\s{2,}/g, '   '), durSec: durToSec(D), note: E }); continue; }
         const reserved = /^\+\s*ESPACIO/i.test(B);
         items.push({
           id, type: 'item', num: parseInt(A, 10) || seq, contenido: B, formato: C, durSec: durToSec(D),
-          responsable: E, graficos: (F && F !== '—') ? F : '', fuente: (G && G !== '—') ? G : '', gancho: H,
+          responsable: E, graficos: (F && F !== '—') ? F : '', fuente: (Gv && Gv !== '—') ? Gv : '', gancho: H, segunda: (I && I !== '—') ? I : '',
           gcKind: autoGc(F, C, B), status: reserved ? 'borrador' : 'listo'
         });
       }

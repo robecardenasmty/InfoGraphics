@@ -93,14 +93,39 @@ function construirEscaleta() {
     }
 
     var items = []; var seq = 0;
+    // Detecta columnas POR ENCABEZADO (no por posición fija): el operador puede
+    // mover SEGUNDA LÍNEA / FUENTE / GANCHO a donde quiera y se entiende igual.
+    function norm(s) { return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim(); }
+    var col = null;
+    for (var hi = 0; hi < rows.length; hi++) {
+      if (norm(rows[hi][0]) === '#') {
+        col = {};
+        for (var k = 0; k < rows[hi].length; k++) {
+          var h = norm(rows[hi][k]);
+          if (h === '#') col.num = k;
+          else if (h.indexOf('CONTENIDO') === 0) col.contenido = k;
+          else if (h.indexOf('FORMATO') === 0) col.formato = k;
+          else if (h.indexOf('DUR') === 0) col.dur = k;
+          else if (h.indexOf('RESPONSABLE') === 0) col.responsable = k;
+          else if (h.indexOf('SEGUNDA') === 0 || h.indexOf('BAJADA') === 0) col.segunda = k;
+          else if (h.indexOf('GRAFICO') === 0 || h.indexOf('GC') === 0) col.graficos = k;
+          else if (h.indexOf('FUENTE') === 0 || h.indexOf('INSUMO') === 0) col.fuente = k;
+          else if (h.indexOf('GANCHO') === 0 || h.indexOf('EDITORIAL') === 0) col.gancho = k;
+        }
+        break;
+      }
+    }
+    if (!col) col = { num: 0, contenido: 1, formato: 2, dur: 3, responsable: 4, graficos: 5, fuente: 6, gancho: 7, segunda: 8 };
+    function G(r, field) { var k = col[field]; return (k == null) ? '' : String(r[k] || '').trim(); }
+
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];
-      var A = String(r[0] || '').trim(), B = String(r[1] || '').trim(), C = String(r[2] || '').trim(),
-          D = String(r[3] || '').trim(), E = String(r[4] || '').trim(), F = String(r[5] || '').trim(),
-          G = String(r[6] || '').trim(), H = String(r[7] || '').trim();
-      if (i === 0) continue;            // título
-      if (A === '#') continue;          // encabezado de columnas
-      if (!A && !B) continue;           // vacía
+      var A = G(r, 'num'), B = G(r, 'contenido');
+      if (i === 0 && !A && !B) continue; // título
+      if (norm(A) === '#') continue;     // encabezado de columnas
+      if (!A && !B) continue;            // vacía
+      var C = G(r, 'formato'), D = G(r, 'dur'), E = G(r, 'responsable'),
+          F = G(r, 'graficos'), Gv = G(r, 'fuente'), H = G(r, 'gancho'), I = G(r, 'segunda');
       var id = hk + '-' + (++seq);
       if (A && !B && isNaN(parseInt(A, 10))) { items.push({ id: id, type: 'block', label: A }); continue; }
       if (B.toUpperCase().indexOf('CORTE') === 0) {
@@ -110,7 +135,7 @@ function construirEscaleta() {
       var reserved = /^\+\s*ESPACIO/i.test(B);
       items.push({
         id: id, type: 'item', num: parseInt(A, 10) || seq, contenido: B, formato: C, durSec: durToSec(D),
-        responsable: E, graficos: (F && F !== '—') ? F : '', fuente: (G && G !== '—') ? G : '', gancho: H,
+        responsable: E, graficos: (F && F !== '—') ? F : '', fuente: (Gv && Gv !== '—') ? Gv : '', gancho: H, segunda: (I && I !== '—') ? I : '',
         gcKind: autoGc(F, C, B), status: reserved ? 'borrador' : 'listo'
       });
     }
