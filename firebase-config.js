@@ -10,13 +10,13 @@
    NO toques las 4 líneas de "rutas" del final.
    ============================================================ */
 window.INFO7_FIREBASE_CONFIG = {
-  apiKey:            "PEGA_AQUI_apiKey",
-  authDomain:        "PEGA_AQUI_authDomain",
-  databaseURL:       "PEGA_AQUI_databaseURL",
-  projectId:         "PEGA_AQUI_projectId",
-  storageBucket:     "PEGA_AQUI_storageBucket",
-  messagingSenderId: "PEGA_AQUI_messagingSenderId",
-  appId:             "PEGA_AQUI_appId",
+  apiKey:            "AIzaSyBxMXVODvKnREKlBGYYCHk-2jJPlRI4C80",
+  authDomain:        "infographics-62747.firebaseapp.com",
+  databaseURL:       "https://infographics-62747-default-rtdb.firebaseio.com",
+  projectId:         "infographics-62747",
+  storageBucket:     "infographics-62747.firebasestorage.app",
+  messagingSenderId: "748846969922",
+  appId:             "1:748846969922:web:b5a95f4086891c09a729db",
 
   path:         "info7/cintillo",
   rundownPath:  "info7/rundown",
