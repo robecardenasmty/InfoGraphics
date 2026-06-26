@@ -4,30 +4,32 @@
    1) Crea un proyecto gratis en https://console.firebase.google.com
    2) Realtime Database → Crear base de datos (modo de prueba)
    3) Configuración del proyecto (⚙️) → "Tus apps" → app Web (</>) → copia el objeto firebaseConfig
-   4) Pega tus valores aquí abajo (entre las comillas) y agrega "databaseURL".
+   4) Pega tus valores aquí abajo y agrega "databaseURL" (lo da Realtime Database).
 
    Mientras "databaseURL" esté vacío, control.html y render.html siguen
    funcionando en modo LOCAL (mismo navegador) vía BroadcastChannel.
    Con credenciales válidas, se sincronizan por internet entre equipos distintos.
    ============================================================ */
 window.INFO7_FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyBxMXVODvKnREKlBGYYCHk-2jJPlRI4C80",
-  authDomain:        "infographics-62747.firebaseapp.com",
-  databaseURL:       "https://infographics-62747-default-rtdb.firebaseio.com",   // ← IMPRESCINDIBLE (lo da Realtime Database)
-  projectId:         "infographics-62747",
-  storageBucket:     "infographics-62747.firebasestorage.app",
-  messagingSenderId: "748846969922",
-  appId:             "1:748846969922:web:b5a95f4086891c09a729db",
+  apiKey:            "",   // ej. "AIzaSyD-xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  authDomain:        "",   // ej. "info7-cintillo.firebaseapp.com"
+  databaseURL:       "",   // ej. "https://info7-cintillo-default-rtdb.firebaseio.com"  ← IMPRESCINDIBLE
+  projectId:         "",   // ej. "info7-cintillo"
+  storageBucket:     "",   // ej. "info7-cintillo.appspot.com"
+  messagingSenderId: "",   // ej. "123456789012"
+  appId:             "",   // ej. "1:123456789012:web:abcdef123456"
 
-  // ── Rutas (NO las cambies si no sabes; deben coincidir con el Apps Script) ──
-
-  // Estado del cintillo AL AIRE (control → render).
+  // Ruta donde se guarda el estado del cintillo. Cambia el sufijo para tener
+  // varios "canales" independientes (ej. "info7/estudioA", "info7/estudioB").
   path: "info7/cintillo",
 
-  // Escaleta compartida entre operadores.
+  // Ruta donde se guarda la ESCALETA compartida entre operadores.
   rundownPath: "info7/rundown",
 
-  // Donde el Apps Script del Excel del productor publica la escaleta.
-  // DEBE ser igual al INGEST_PATH del Code.gs (por defecto: info7/ingest).
-  ingestPath: "info7/ingest"
+  // Ruta donde el Apps Script del Excel del productor publica la escaleta.
+  // El control la ESCUCHA y refresca las horas en tiempo real.
+  ingestPath: "info7/ingest",
+
+  // Teleprompter: el RUNDOWN manda el guion + comandos; prompter.html (estudio) recibe.
+  prompterPath: "info7/prompter"
 };
