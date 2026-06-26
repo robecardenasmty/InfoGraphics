@@ -32,6 +32,7 @@
 <div style="display:flex;flex-direction:column;height:100vh;width:100%;overflow:hidden;background:#0a0e14;color:#e7edf6;">
 
   <!-- ===== PREVIEW | PROGRAMA ===== -->
+  <sc-if value="{{ isMain }}" hint-placeholder-val="{{ true }}">
   <div style="flex:none;display:flex;align-items:stretch;gap:18px;padding:16px 18px 10px;background:linear-gradient(180deg,#0e131b,#0a0e14);">
 
     <!-- PREVIEW -->
@@ -83,13 +84,25 @@
       </sc-if>
     </div>
   </div>
+  </sc-if>
 
   <!-- ===== TABS ===== -->
-  <div style="flex:none;display:flex;gap:7px;padding:6px 18px 0;border-bottom:1px solid #1c2430;overflow-x:auto;">
+  <sc-if value="{{ isMain }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:none;display:flex;align-items:center;gap:7px;padding:6px 18px 0;border-bottom:1px solid #1c2430;overflow-x:auto;">
     <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
       <button onClick="{{ t.on }}" style="{{ t.style }}">{{ t.label }}</button>
     </sc-for>
+    <div style="flex:1;min-width:14px;"></div>
+    <button onClick="{{ popOut }}" title="Abrir esta pestaña en su propia ventana" style="flex:none;margin-bottom:6px;padding:7px 13px;border-radius:8px;border:1px solid #2a5f8a;background:#0d1f30;color:#9fd0f5;font-family:'Saira Condensed';font-weight:700;font-size:13px;letter-spacing:.04em;cursor:pointer;white-space:nowrap;">⤢ Desprender ventana</button>
   </div>
+  </sc-if>
+  <sc-if value="{{ panelMode }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:none;display:flex;align-items:center;gap:11px;padding:13px 20px;border-bottom:1px solid #1c2430;background:linear-gradient(180deg,#0e131b,#0a0e14);">
+    <span style="width:9px;height:9px;border-radius:2px;background:#29abe2;"></span>
+    <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;letter-spacing:.06em;color:#fff;">{{ panelTitle }}</span>
+    <span style="font-family:'Barlow';font-size:12px;color:#6f86ad;">Ventana desprendida · sincronizada con la consola</span>
+  </div>
+  </sc-if>
 
   <!-- ===== CONSOLE ===== -->
   <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 18px 28px;">
@@ -192,7 +205,7 @@
                       </div>
                       <div>
                         <label style="display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7e8ea3;margin-bottom:5px;">Gancho / nota editorial</label>
-                        <textarea onInput="{{ r.onGancho }}" rows="2" placeholder="El porqué de la nota, el gancho para retener…" style="width:100%;padding:8px 10px;border-radius:7px;background:#11161f;border:1px solid #2a3340;color:#cdd7e4;font-family:'Barlow';font-size:13px;resize:vertical;outline:none;">{{ r.gancho }}</textarea>
+                        <textarea value="{{ r.gancho }}" onInput="{{ r.onGancho }}" rows="2" placeholder="El porqué de la nota, el gancho para retener…" style="width:100%;padding:8px 10px;border-radius:7px;background:#11161f;border:1px solid #2a3340;color:#cdd7e4;font-family:'Barlow';font-size:13px;resize:vertical;outline:none;"></textarea>
                       </div>
                     </div>
                   </sc-if>
@@ -241,7 +254,7 @@
           <div style="{{ card }}">
             <div style="{{ cardHd }}">Cuerpo</div>
             <div style="display:flex;gap:10px;"><div style="flex:1;"><label style="{{ fLab }}">Nombre</label><input value="{{ txt.nombre }}" onInput="{{ setTxt.nombre }}" style="{{ fInp }}" /></div><div style="flex:1;"><label style="{{ fLab }}">Cargo / fuente</label><input value="{{ txt.cargo }}" onInput="{{ setTxt.cargo }}" style="{{ fInp }}" /></div></div>
-            <div><label style="{{ fLab }}">Titular</label><textarea onInput="{{ setTxt.titular }}" rows="2" style="{{ fArea }}">{{ txt.titular }}</textarea></div>
+            <div><label style="{{ fLab }}">Titular</label><textarea value="{{ txt.titular }}" onInput="{{ setTxt.titular }}" rows="2" style="{{ fArea }}"></textarea></div>
             <div><label style="{{ fLab }}">Segunda línea</label><input value="{{ txt.segunda }}" onInput="{{ setTxt.segunda }}" style="{{ fInp }}" /></div>
           </div>
           <div style="{{ card }}">
@@ -257,7 +270,7 @@
           <div style="{{ card }}">
             <div style="{{ cardHd }}">Back · pantalla completa</div>
             <div><label style="{{ fLab }}">Antetítulo (kicker)</label><input value="{{ txt.backKicker }}" onInput="{{ setTxt.backKicker }}" style="{{ fInp }}" /></div>
-            <div><label style="{{ fLab }}">Título grande</label><textarea onInput="{{ setTxt.backTitle }}" rows="3" style="{{ fArea }}">{{ txt.backTitle }}</textarea></div>
+            <div><label style="{{ fLab }}">Título grande</label><textarea value="{{ txt.backTitle }}" onInput="{{ setTxt.backTitle }}" rows="3" style="{{ fArea }}"></textarea></div>
           </div>
         </div>
       </sc-if>
@@ -383,8 +396,11 @@ class Component extends DCLogic {
     };
     this.GCOPTS=[['ninguno','Sin GC'],['cortinilla','Cortinilla'],['titular','Titular'],['nombre','Nombre / cargo'],['localizacion','Localización · vivo'],['datos','Datos / cifras'],['clima','Clima'],['deportes','Deportes'],['espectaculos','Espectáculos'],['mosca','Mosca / redes'],['back','Back · pantalla']];
     const built=this.buildRundowns();
+    const _params=(typeof location!=='undefined')?new URLSearchParams(location.search):new URLSearchParams();
+    this.panelMode=_params.get('panel')||null;   // null = ventana principal; si no, nombre de la pestaña desprendida
+    this._ctrlReady=!this.panelMode;             // la principal es la fuente de verdad desde el arranque
     this.state = {
-      tab:'escaleta', onAir:false, progShown:false, pgmId:0, progTickers:{}, liveState:{},
+      tab: this.panelMode || 'escaleta', onAir:false, progShown:false, pgmId:0, progTickers:{}, liveState:{},
       preview: this.mkState('breaking'),
       program: this.mkState('breaking'),
       hour:'6AM', rundowns:built.rundowns, estrategia:built.estrategia,
@@ -467,6 +483,19 @@ class Component extends DCLogic {
       speed:600, tickerSpeed:140, bgMode:'transparente', chromaGreen:'#00b140', chromaBlue:'#1f60c4', shadows:false,
     };
   }
+  // ===== PANELES DESPRENDIBLES (sincronía entre ventanas del mismo equipo) =====
+  _ctrlSig(){ const s=this.state; return JSON.stringify({p:s.preview,h:s.hour,pv:s.rdPreviewId,ex:s.rdExpandId}); }
+  pushCtrl(){ if(!this._ctrlReady) return; const sig=this._ctrlSig(); if(sig===this._lastCtrlSig) return; this._lastCtrlSig=sig;
+    try{ if(this.ctrlChan) this.ctrlChan.postMessage({t:'state',preview:this.state.preview,hour:this.state.hour,rdPreviewId:this.state.rdPreviewId,rdExpandId:this.state.rdExpandId}); }catch(e){} }
+  applyCtrl(d){ if(!d) return;
+    if(d.t==='req'){ if(!this.panelMode){ this._lastCtrlSig=null; this.pushCtrl(); } return; }
+    if(d.t!=='state') return;
+    const sig=JSON.stringify({p:d.preview,h:d.hour,pv:d.rdPreviewId,ex:d.rdExpandId});
+    this._ctrlReady=true;
+    if(sig===this._lastCtrlSig) return; this._lastCtrlSig=sig;
+    this.setState({preview:d.preview,hour:d.hour,rdPreviewId:d.rdPreviewId,rdExpandId:d.rdExpandId});
+  }
+  popOut(){ const t=this.state.tab; try{ const w=Math.min((screen.availWidth||1400)-40, t==='escaleta'?1280:1000); const h=Math.min((screen.availHeight||900)-60, 920); window.open(location.pathname+'?panel='+t, 'info7_panel_'+t, 'width='+w+',height='+h+',menubar=no,toolbar=no,location=no'); }catch(e){} }
   componentDidMount(){
     this.fit(); this._onR=()=>this.fit(); window.addEventListener('resize',this._onR);
     requestAnimationFrame(()=>requestAnimationFrame(()=>this.fit()));
@@ -475,12 +504,13 @@ class Component extends DCLogic {
     try{ this.chan=new BroadcastChannel('info7_graphics'); this.chan.onmessage=(e)=>{ if(e.data&&e.data.type==='hello') this.broadcast(); }; }catch(e){ this.chan=null; }
     try{ const raw=localStorage.getItem('info7_rundown_v2'); if(raw) this.rdApply(JSON.parse(raw)); }catch(e){}
     try{ this.rdChan=new BroadcastChannel('info7_rundown'); this.rdChan.onmessage=(e)=>this.rdApply(e.data); }catch(e){ this.rdChan=null; }
+    try{ this.ctrlChan=new BroadcastChannel('info7_control'); this.ctrlChan.onmessage=(e)=>this.applyCtrl(e.data); if(this.panelMode){ this.ctrlChan.postMessage({t:'req'}); } }catch(e){ this.ctrlChan=null; }
     this._rdSub=()=>{ if(this._rdSubbed||!window.INFO7_FIREBASE_RUNDOWN) return; this._rdSubbed=true; try{ window.INFO7_FIREBASE_RUNDOWN.subscribe((d)=>this.rdApply(d)); }catch(e){} };
     this._inSub=()=>{ if(this._inSubbed||!window.INFO7_FIREBASE_INGEST) return; this._inSubbed=true; try{ window.INFO7_FIREBASE_INGEST.subscribe((d)=>{ if(d&&d.horas&&d.horas.length){ this.mergeIngest(d); const n=d.horas.reduce((a,h)=>a+h.items.filter(i=>i.type==='item').length,0); this.setState({syncMsg:'⟳ Escaleta del productor actualizada · '+d.horas.length+' horas · '+n+' notas.'}); } }); }catch(e){} };
     this._rdSub(); this._inSub(); window.addEventListener('info7-fb-ready', this._fbReadyRd=()=>{ this._rdSub(); this._inSub(); });
   }
-  componentWillUnmount(){ window.removeEventListener('resize',this._onR); if(this._ro)this._ro.disconnect(); if(this.chan)this.chan.close(); if(this.rdChan)this.rdChan.close(); if(this._fbReadyRd) window.removeEventListener('info7-fb-ready',this._fbReadyRd); }
-  componentDidUpdate(){ this.fit(); }
+  componentWillUnmount(){ window.removeEventListener('resize',this._onR); if(this._ro)this._ro.disconnect(); if(this.chan)this.chan.close(); if(this.rdChan)this.rdChan.close(); if(this.ctrlChan)this.ctrlChan.close(); if(this._fbReadyRd) window.removeEventListener('info7-fb-ready',this._fbReadyRd); }
+  componentDidUpdate(){ this.fit(); this.pushCtrl(); }
   fit(){ const el=this.pvScaleRef.current; if(!el) return; const box=el.parentElement; if(!box) return; const s=box.clientWidth/1920; if(s>0 && Math.abs(s-(this._s||0))>0.002){ this._s=s; this.forceUpdate(); } }
 
   edit(mut){ this.setState(s=>{ const p=JSON.parse(JSON.stringify(s.preview)); mut(p); return {preview:p}; }); }
@@ -580,6 +610,8 @@ class Component extends DCLogic {
         })
       : [];
     const tabsDef=[['escaleta','Escaleta'],['categoria','Categoría'],['textos','Textos'],['anim','Animación'],['colores','Colores'],['fondo','Elementos · Fondo']];
+    const tabStyleFull=(a)=>({padding:'9px 15px',borderRadius:'9px 9px 0 0',border:'1px solid '+(a?'#2a3340':'transparent'),borderBottom:'none',background:a?'#141b25':'transparent',color:a?'#fff':'#7e8ea3',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'15px',letterSpacing:'.04em',cursor:'pointer',whiteSpace:'nowrap'});
+    const panelTitle=(tabsDef.find(t=>t[0]===tab)||['','Panel'])[1];
     const tabStyle=(a)=>({padding:'9px 15px',borderRadius:'9px 9px 0 0',border:'1px solid '+(a?'#2a3340':'transparent'),borderBottom:'none',background:a?'#141b25':'transparent',color:a?'#fff':'#7e8ea3',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'14px',letterSpacing:'.05em',textTransform:'uppercase',cursor:'pointer',whiteSpace:'nowrap'});
     const tabs=tabsDef.map(([k,l])=>({label:l,on:()=>this.setState({tab:k}),style:tabStyle(tab===k)}));
 
@@ -683,6 +715,8 @@ class Component extends DCLogic {
     const rdBtnPrimary={padding:'9px 14px',borderRadius:'9px',border:'none',background:'linear-gradient(180deg,#f47b20,#d4640f)',color:'#fff',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'14px',letterSpacing:'.03em',cursor:'pointer',whiteSpace:'nowrap'};
 
     return {
+      panelMode:!!this.panelMode, isMain:!this.panelMode, panelTitle,
+      popOut:()=>this.popOut(),
       tabEscaleta:tab==='escaleta',
       hourTabs, isStrat, showHours:!isStrat, stratRows, stratTitle,
       onImportFile:(e)=>{ const f=e.target.files&&e.target.files[0]; this.importXlsx(f); e.target.value=''; },
