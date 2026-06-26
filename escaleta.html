@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<script src="firebase-config.js"></script>
+<script type="module" src="firebase-bridge.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="./escaleta-seed.js"></script>
+  <script src="./xlsx-ingest.js"></script>
+  <style>
+    *{box-sizing:border-box;}
+    html,body{margin:0;background:#e9edf2;}
+    ::-webkit-scrollbar{width:11px;height:11px;}
+    ::-webkit-scrollbar-thumb{background:#d6dce4;border-radius:6px;border:2px solid #e9edf2;}
+    ::-webkit-scrollbar-track{background:#e9edf2;}
+    input,textarea,select{font-family:inherit;}
+    .eRow input:focus,.eRow textarea:focus,.eRow select:focus{border-color:#0e5aa8 !important;background:#ffffff !important;}
+    .eItem > *{ border-right:1px solid #e2e7ee; }
+    .eItem > *:last-child{ border-right:none; }
+    .eItem:hover{ background:#eaf0f6 !important; }
+    .eItem textarea{ field-sizing:content; resize:none; overflow:hidden; white-space:pre-wrap; word-break:break-word; line-height:1.3; }
+    .eHead > *{ border-right:1px solid #dce2ea; display:flex; align-items:center; }
+    .eHead > *:last-child{ border-right:none; }
+    .navBtn:hover{ background:#e6ecf3 !important; color:#1f2c3b !important; }
+    @keyframes ePulse{0%,100%{opacity:1;}50%{opacity:.42;}}
+    @keyframes eGlow{0%,100%{box-shadow:0 0 0 1px #e0241a, 0 0 14px rgba(224,36,26,.4);}50%{box-shadow:0 0 0 1px #ff5a4a, 0 0 22px rgba(224,36,26,.7);}}
+  </style>
+  <template id="__bundler_thumbnail" data-bg-color="#e9edf2">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect x="120" y="150" width="960" height="90" rx="10" fill="#cfe0f2"/>
+      <rect x="120" y="270" width="960" height="64" rx="8" fill="#e6ecf3"/>
+      <rect x="120" y="350" width="960" height="64" rx="8" fill="#dfe5ec"/>
+      <rect x="120" y="430" width="960" height="64" rx="8" fill="#fbeae9"/>
+      <rect x="120" y="510" width="960" height="64" rx="8" fill="#e6ecf3"/>
+      <rect x="140" y="172" width="220" height="46" rx="6" fill="#0e5aa8"/>
+      <circle cx="170" cy="302" r="9" fill="#1f7ad6"/><circle cx="170" cy="382" r="9" fill="#c8881a"/>
+      <circle cx="170" cy="462" r="9" fill="#e0241a"/>
+    </svg>
+  </template>
+</helmet>
+
+<div style="height:100vh;background:#e9edf2;color:#1a2532;font-family:'Barlow',sans-serif;display:flex;flex-direction:row;overflow:hidden;">
+
+  <!-- RAIL IZQUIERDO -->
+  <div style="width:74px;flex:none;background:linear-gradient(180deg,#eef2f7,#e9edf2);border-right:1px solid #dce2ea;display:flex;flex-direction:column;align-items:center;padding:14px 0 12px;gap:5px;">
+    <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#0e5aa8,#0a4485);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed';font-weight:800;font-size:22px;color:#fff;margin-bottom:8px;">7</div>
+    <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="6">
+      <div class="navBtn" onClick="{{ n.onClick }}" style="{{ n.style }}">
+        <span style="font-size:17px;line-height:1;">{{ n.ic }}</span>
+        <span style="font-size:9px;letter-spacing:.04em;font-family:'Saira Condensed';font-weight:600;">{{ n.l }}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- COLUMNA PRINCIPAL -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+
+  <!-- BARRA SUPERIOR tipo documento -->
+  <div style="display:flex;align-items:center;gap:16px;padding:11px 20px;background:linear-gradient(180deg,#ffffff,#ffffff);border-bottom:1px solid #dce2ea;flex:none;">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div style="font-family:'Saira Condensed';font-weight:800;font-size:20px;letter-spacing:.04em;color:#13243a;">RUNDOWN</div>
+      <span style="color:#aab4c1;">▾</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:9px;background:#ffffff;border:1px solid #dce2ea;">
+      <span style="color:#6b7888;font-size:13px;">🗓</span>
+      <span style="font-family:'Barlow';font-size:13px;color:#5d6b7d;text-transform:capitalize;">{{ today }}</span>
+    </div>
+    <div style="flex:1;min-width:12px;"></div>
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:9px;background:#ffffff;border:1px solid #dce2ea;width:280px;max-width:30vw;">
+      <span style="color:#8a96a6;font-size:14px;">⌕</span>
+      <input value="{{ q }}" onInput="{{ onSearch }}" placeholder="Buscar en el rundown…" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:#26323f;font-family:'Barlow';font-size:13px;" />
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1;padding-left:6px;border-left:1px solid #dce2ea;">
+      <div style="display:flex;align-items:center;gap:7px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#ff3b2f;box-shadow:0 0 8px rgba(255,59,47,.8);animation:ePulse 1.2s ease-in-out infinite;"></span>
+        <span style="font-family:'Saira Condensed';font-weight:800;font-size:28px;letter-spacing:.02em;color:#13243a;font-variant-numeric:tabular-nums;">{{ clock }}</span>
+      </div>
+      <div style="font-size:10px;letter-spacing:.14em;color:#6b7888;text-transform:uppercase;margin-top:2px;">En vivo · hora local</div>
+    </div>
+  </div>
+
+  <!-- pestañas de hora + herramientas -->
+  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 20px 6px;">
+    <sc-for list="{{ hourTabs }}" as="h" hint-placeholder-count="5">
+      <button onClick="{{ h.on }}" style="{{ h.style }}">{{ h.l }}</button>
+    </sc-for>
+    <div style="flex:1;min-width:8px;"></div>
+    <label style="display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:9px;border:1px solid #9cc4ea;background:#e8f1fb;color:#0e5aa8;font-family:'Saira Condensed';font-weight:700;font-size:14px;letter-spacing:.04em;cursor:pointer;white-space:nowrap;">⬆ IMPORTAR EXCEL<input type="file" accept=".xlsx" onChange="{{ onImportFile }}" style="display:none;" /></label>
+    <div style="position:relative;">
+      <button onClick="{{ toggleAddMenu }}" style="{{ btnPrimary }}">＋ Añadir</button>
+      <sc-if value="{{ addMenuOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;right:0;top:46px;z-index:30;width:226px;background:#ffffff;border:1px solid #d6dce4;border-radius:12px;padding:6px;box-shadow:0 18px 50px rgba(0,0,0,.6);">
+          <sc-for list="{{ addItems }}" as="a" hint-placeholder-count="3">
+            <button onClick="{{ a.on }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:8px;border:none;background:transparent;color:#26323f;font-family:'Saira Condensed';font-weight:700;font-size:15px;letter-spacing:.02em;cursor:pointer;" style-hover="background:#e6ecf3;">
+              <span style="width:9px;height:9px;border-radius:50%;flex:none;background:{{ a.c }};"></span>{{ a.l }}
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <!-- BANDA DE MÉTRICAS estilo Rundown Central -->
+  <div style="display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;padding:2px 20px 12px;">
+    <div style="{{ alAireStyle }}">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'Saira Condensed';font-weight:800;font-size:18px;letter-spacing:.05em;color:{{ alAireColor }};"><span style="{{ alAireDot }}"></span>{{ alAireLabel }}</div>
+      <div style="font-size:10px;letter-spacing:.1em;color:#6b7888;text-transform:uppercase;margin-top:3px;">{{ alAireSub }}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;padding:6px 12px;border-radius:10px;background:#ffffff;border:1px solid {{ autoBorder }};">
+      <button onClick="{{ autoToggle }}" title="Ensayo de tiempos en automático (no toca el aire)" style="{{ autoBtnStyle }}">{{ autoBtnLabel }}</button>
+      <div style="display:flex;flex-direction:column;line-height:1.05;">
+        <div style="font-size:9px;letter-spacing:.13em;color:#6b7888;text-transform:uppercase;">{{ autoStateLabel }}</div>
+        <div style="font-family:'Saira Condensed';font-weight:700;font-size:18px;color:{{ autoCdColor }};">{{ autoCountdown }}</div>
+      </div>
+      <button onClick="{{ autoReset }}" title="Reiniciar" style="width:28px;height:28px;border-radius:7px;border:1px solid #cfd6df;background:#ffffff;color:#7a8696;font-size:12px;cursor:pointer;">⟲</button>
+    </div>
+    <sc-for list="{{ metricCells }}" as="m" hint-placeholder-count="5">
+      <div style="display:flex;flex-direction:column;justify-content:center;min-width:104px;padding:8px 14px;border-radius:10px;background:#ffffff;border:1px solid #dce2ea;">
+        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#6b7888;">{{ m.label }}</div>
+        <div style="font-family:'Saira Condensed';font-weight:700;font-size:21px;letter-spacing:.01em;color:{{ m.color }};font-variant-numeric:tabular-nums;">{{ m.value }}</div>
+      </div>
+    </sc-for>
+    <div style="flex:1;min-width:8px;"></div>
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:6px;padding:8px 14px;border-radius:10px;background:#ffffff;border:1px solid #dce2ea;">
+      <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6b7888;">Estado general</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <sc-for list="{{ estadoChips }}" as="s" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:8px;background:#eef2f7;border:1px solid #dde3ea;">
+            <span style="width:9px;height:9px;border-radius:50%;background:{{ s.c }};"></span>
+            <span style="font-size:11px;color:#5d6b7d;letter-spacing:.03em;">{{ s.l }}</span>
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:15px;color:#13243a;">{{ s.n }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÁREA: rejilla + panel -->
+  <div style="flex:1;display:flex;min-height:0;position:relative;overflow:hidden;">
+   <div style="flex:1;overflow:auto;padding:0 20px 24px;">
+    <div style="min-width:1240px;zoom:{{ zoom }};">
+      <!-- encabezado de columnas -->
+      <div class="eHead" style="display:grid;grid-template-columns:22px 38px 30px 66px minmax(230px,1.7fr) 60px 62px 64px minmax(120px,1fr) 120px minmax(120px,1fr) minmax(150px,1.4fr) 86px;gap:0;align-items:stretch;padding:0;position:sticky;top:0;background:#e8edf3;border:1px solid #dce2ea;font-family:'Saira Condensed';font-weight:700;font-size:11px;letter-spacing:.07em;color:#6b7888;text-transform:uppercase;z-index:10;height:32px;">
+        <div></div><div style="justify-content:center;">#</div><div></div><div style="padding-left:6px;">Formato</div><div style="padding-left:6px;">Contenido / Bajada</div><div style="justify-content:center;">Dur</div><div style="justify-content:center;">Hit</div><div style="justify-content:center;">Back</div><div style="padding-left:6px;">Responsable</div><div style="padding-left:6px;">GC</div><div style="padding-left:6px;">Fuente</div><div style="padding-left:6px;">Gancho</div><div></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <sc-for list="{{ rdRows }}" as="r" hint-placeholder-count="12">
+          <div class="eRow {{ r.cls }}" draggable="true" onDragStart="{{ r.onDragStart }}" onDragOver="{{ r.onDragOver }}" onDrop="{{ r.onDrop }}" onDragEnd="{{ r.onDragEnd }}" style="{{ r.rowStyle }}">
+
+            <!-- BLOQUE -->
+            <sc-if value="{{ r.isBlock }}" hint-placeholder-val="{{ false }}">
+              <span style="cursor:grab;color:#cfe6fb;font-size:15px;flex:none;user-select:none;">⠿</span>
+              <span style="font-family:'Saira Condensed';font-weight:800;font-size:16px;letter-spacing:.09em;color:#eaf4ff;text-transform:uppercase;">{{ r.label }}</span>
+              <div style="flex:1;"></div>
+              <span style="font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:.05em;color:#cfe6fb;">AL AIRE EN {{ r.hitStr }}</span>
+              <span style="font-family:'Saira Condensed';font-weight:700;font-size:13px;color:#fff;background:rgba(255,255,255,.14);border-radius:6px;padding:2px 9px;">{{ r.segDurStr }}</span>
+              <button onClick="{{ r.onEdit }}" title="Editar" style="{{ r.iconBtn }}">✎</button>
+              <button onClick="{{ r.onDel }}" style="{{ r.iconBtn }}">✕</button>
+            </sc-if>
+
+            <!-- CORTE -->
+            <sc-if value="{{ r.isCorte }}" hint-placeholder-val="{{ false }}">
+              <span style="cursor:grab;color:#cf8e87;font-size:15px;flex:none;user-select:none;">⠿</span>
+              <span style="font-family:'Saira Condensed';font-weight:800;font-size:15px;letter-spacing:.07em;color:#b81810;text-transform:uppercase;">{{ r.label }}</span>
+              <div style="flex:1;"></div>
+              <input value="{{ r.durText }}" onInput="{{ r.onDur }}" onBlur="{{ r.onDurBlur }}" style="width:54px;text-align:center;padding:5px 4px;border-radius:7px;background:#ffffff;border:1px solid #f0c4bf;color:#b81810;font-family:'Saira Condensed';font-weight:700;font-size:14px;outline:none;" />
+              <span style="font-family:'Saira Condensed';font-weight:600;font-size:13px;color:#b81810;width:54px;text-align:right;">{{ r.hitStr }}</span>
+              <button onClick="{{ r.onEdit }}" title="Editar" style="{{ r.iconBtn }}">✎</button>
+              <button onClick="{{ r.onDel }}" style="{{ r.iconBtn }}">✕</button>
+            </sc-if>
+
+            <!-- NOTA -->
+            <sc-if value="{{ r.isItem }}" hint-placeholder-val="{{ true }}">
+              <span style="cursor:grab;color:#aab4c1;font-size:15px;flex:none;user-select:none;align-self:center;">⠿</span>
+              <div style="font-family:'Saira Condensed';font-weight:700;font-size:15px;color:#6b7888;text-align:center;align-self:center;">{{ r.num }}</div>
+              <div onClick="{{ r.onStatus }}" title="Cambiar estado" style="{{ r.dotStyle }}"></div>
+              <div style="align-self:center;"><span style="{{ r.fmtStyle }}">{{ r.fmtLabel }}</span></div>
+              <div style="min-width:0;align-self:center;padding-right:6px;">
+                <textarea value="{{ r.contenido }}" onInput="{{ r.onContenido }}" rows="1" style="width:100%;background:transparent;border:1px solid transparent;border-radius:6px;outline:none;color:#15233a;font-family:'Saira Condensed';font-weight:700;font-size:16px;letter-spacing:.01em;padding:3px 5px;"></textarea>
+                <textarea value="{{ r.segunda }}" onInput="{{ r.onSegunda }}" rows="1" placeholder="+ segunda línea / bajada" style="width:100%;background:transparent;border:1px solid transparent;border-radius:6px;outline:none;color:#5d6b7d;font-family:'Barlow';font-size:12.5px;padding:2px 5px;margin-top:1px;"></textarea>
+              </div>
+              <input value="{{ r.durText }}" onInput="{{ r.onDur }}" onBlur="{{ r.onDurBlur }}" style="width:52px;align-self:center;text-align:center;padding:5px 3px;border-radius:7px;background:#ffffff;border:1px solid #cfd6df;color:#3a4756;font-family:'Saira Condensed';font-weight:700;font-size:14px;outline:none;" />
+              <div style="align-self:center;text-align:center;font-family:'Saira Condensed';font-weight:600;font-size:14px;color:#6b7888;">{{ r.hitStr }}</div>
+              <div style="align-self:center;text-align:center;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:{{ r.backColor }};">{{ r.backStr }}</div>
+              <textarea value="{{ r.responsable }}" onInput="{{ r.onResp }}" rows="1" placeholder="—" style="align-self:center;width:100%;background:transparent;border:1px solid transparent;border-radius:6px;outline:none;color:#3a4756;font-family:'Barlow';font-size:13px;padding:5px 5px;"></textarea>
+              <select value="{{ r.gcKind }}" onChange="{{ r.onGc }}" style="align-self:center;width:100%;padding:5px 5px;border-radius:7px;background:#ffffff;border:1px solid #a9c8ec;color:#0e5aa8;font-family:'Barlow';font-weight:600;font-size:12px;cursor:pointer;outline:none;">
+                <sc-for list="{{ r.gcOpts }}" as="o" hint-placeholder-count="11"><option value="{{ o.0 }}">{{ o.1 }}</option></sc-for>
+              </select>
+              <textarea value="{{ r.fuente }}" onInput="{{ r.onFuente }}" rows="1" placeholder="—" style="align-self:center;width:100%;background:transparent;border:1px solid transparent;border-radius:6px;outline:none;color:#5d6b7d;font-family:'Barlow';font-size:13px;padding:5px 5px;"></textarea>
+              <textarea value="{{ r.gancho }}" onInput="{{ r.onGancho }}" rows="1" placeholder="—" style="align-self:center;width:100%;background:transparent;border:1px solid transparent;border-radius:6px;outline:none;color:#5d6b7d;font-family:'Barlow';font-size:13px;padding:5px 5px;"></textarea>
+              <div style="align-self:center;display:flex;gap:4px;justify-content:flex-end;">
+                <button onClick="{{ r.onEdit }}" title="Editar (panel)" style="{{ r.iconBtn }}">✎</button>
+                <button onClick="{{ r.onDup }}" title="Duplicar" style="{{ r.iconBtn }}">⧉</button>
+                <button onClick="{{ r.onDel }}" title="Borrar" style="{{ r.iconBtn }}">✕</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+       </div>
+      </div>
+     </div>
+
+     <!-- PANEL Vista de historia (acoplado ⇄ flotante) -->
+     <sc-if value="{{ panelVisible }}" hint-placeholder-val="{{ true }}">
+      <div onClick="{{ closeEdit }}" style="{{ panelBackdropStyle }}"></div>
+      <div style="{{ panelWrapStyle }}">
+
+        <!-- encabezado VISTA DE HISTORIA -->
+        <div style="padding:14px 18px 0;border-bottom:1px solid #dce2ea;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="flex:1;font-family:'Saira Condensed';font-weight:800;font-size:13px;letter-spacing:.16em;color:#6b7888;text-transform:uppercase;">Vista de historia</div>
+            <button onClick="{{ toggleDock }}" title="{{ dockTitle }}" style="flex:none;width:30px;height:30px;border-radius:8px;border:1px solid #cfd6df;background:#ffffff;color:#5d6b7d;font-size:14px;cursor:pointer;">{{ dockIcon }}</button>
+            <button onClick="{{ closeEdit }}" title="Cerrar / deseleccionar" style="flex:none;width:30px;height:30px;border-radius:8px;border:1px solid #cfd6df;background:#ffffff;color:#5d6b7d;font-size:15px;cursor:pointer;">✕</button>
+          </div>
+          <sc-if value="{{ hasEdit }}" hint-placeholder-val="{{ true }}">
+            <div style="font-family:'Saira Condensed';font-weight:800;font-size:19px;letter-spacing:.01em;color:#13243a;line-height:1.15;margin-top:8px;">{{ editRow.title }}</div>
+          </sc-if>
+          <sc-if value="{{ hasItemEdit }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:18px;margin-top:10px;">
+              <sc-for list="{{ panelTabs }}" as="t" hint-placeholder-count="4">
+                <div onClick="{{ t.on }}" style="{{ t.style }}">{{ t.l }}</div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:16px;">
+
+          <!-- ESTADO VACÍO -->
+          <sc-if value="{{ noEdit }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:40px 16px;color:#8a96a6;">
+              <div style="font-size:34px;opacity:.5;">▥</div>
+              <div style="font-family:'Saira Condensed';font-weight:700;font-size:17px;color:#6b7888;">Selecciona una nota</div>
+              <div style="font-size:12.5px;line-height:1.5;max-width:240px;">Haz clic en el lápiz ✎ de cualquier renglón para ver y editar su detalle, o crea uno con <b style="color:#5d6b7d;">＋ Añadir</b>.</div>
+            </div>
+          </sc-if>
+
+          <!-- CONTENIDO -->
+          <sc-if value="{{ hasEdit }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ showDetalle }}" hint-placeholder-val="{{ true }}">
+
+          <!-- NOTA -->
+          <sc-if value="{{ editRow.isItem }}" hint-placeholder-val="{{ true }}">
+            <!-- VISTA PREVIA AL AIRE -->
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:8px;">Vista previa al aire</label>
+              <div style="border-radius:12px;overflow:hidden;border:1px solid #d2d9e2;background:#0b0f16;">
+                <div style="aspect-ratio:16/9;background:repeating-conic-gradient(#161b22 0% 25%,#10151c 0% 50%) 50%/22px 22px;position:relative;">
+                  <div style="position:absolute;left:16px;right:16px;bottom:14px;font-family:'Saira Condensed';">
+                    <div style="display:inline-block;background:linear-gradient(180deg,#0e5aa8,#0a4485);color:#fff;font-weight:800;font-size:12px;letter-spacing:.1em;padding:4px 12px;border-radius:8px 8px 0 0;">{{ editRow.previewKicker }}</div>
+                    <div style="display:flex;border-radius:0 10px 10px 10px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.4);">
+                      <div style="width:8px;background:linear-gradient(180deg,#0b3c8c,#072a66);flex:none;"></div>
+                      <div style="flex:1;background:linear-gradient(180deg,#ffffff,#eef1f5);padding:10px 14px;min-width:0;">
+                        <div style="color:#11243f;font-weight:800;font-size:20px;line-height:1.05;letter-spacing:.01em;text-transform:uppercase;word-break:break-word;">{{ editRow.previewContenido }}</div>
+                        <sc-if value="{{ editRow.previewHasSegunda }}" hint-placeholder-val="{{ false }}">
+                          <div style="color:#52627a;font-family:'Barlow';font-weight:600;font-size:12px;margin-top:3px;text-transform:uppercase;letter-spacing:.02em;">{{ editRow.previewSegunda }}</div>
+                        </sc-if>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Contenido (titular)</label>
+              <textarea value="{{ editRow.contenido }}" onInput="{{ editRow.onContenido }}" rows="2" placeholder="Escribe el titular de la nota…" style="width:100%;padding:11px 13px;border-radius:10px;background:#ffffff;border:1px solid #d6dce4;color:#15233a;font-family:'Saira Condensed';font-weight:700;font-size:19px;letter-spacing:.01em;resize:vertical;outline:none;"></textarea>
+            </div>
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Segunda línea / bajada</label>
+              <input value="{{ editRow.segunda }}" onInput="{{ editRow.onSegunda }}" placeholder="Dato de apoyo bajo el titular (opcional)" style="width:100%;padding:10px 13px;border-radius:10px;background:#ffffff;border:1px solid #d6dce4;color:#26323f;font-family:'Saira Condensed';font-weight:600;font-size:15px;outline:none;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:9px;">Formato</label>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <sc-for list="{{ editRow.fmtChips }}" as="f" hint-placeholder-count="7">
+                  <div onClick="{{ f.on }}" style="{{ f.style }}">{{ f.label }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;gap:14px;">
+              <div style="width:120px;flex:none;">
+                <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:9px;">Duración</label>
+                <input value="{{ editRow.durText }}" onInput="{{ editRow.onDur }}" onBlur="{{ editRow.onDurBlur }}" style="width:100%;text-align:center;padding:10px;border-radius:10px;background:#ffffff;border:1px solid #d6dce4;color:#15233a;font-family:'Saira Condensed';font-weight:700;font-size:18px;outline:none;" />
+              </div>
+              <div style="flex:1;">
+                <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:9px;">Plantilla de GC</label>
+                <select value="{{ editRow.gcKind }}" onChange="{{ editRow.onGc }}" style="width:100%;padding:11px 12px;border-radius:10px;background:#ffffff;border:1px solid #a9c8ec;color:#0e5aa8;font-family:'Barlow';font-weight:600;font-size:14px;cursor:pointer;outline:none;">
+                  <sc-for list="{{ editRow.gcOpts }}" as="o" hint-placeholder-count="11"><option value="{{ o.0 }}">{{ o.1 }}</option></sc-for>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:9px;">Estado</label>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <sc-for list="{{ editRow.statChips }}" as="s" hint-placeholder-count="4">
+                  <div onClick="{{ s.on }}" style="{{ s.style }}"><span style="{{ s.dot }}"></span>{{ s.l }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="height:1px;background:#dce2ea;"></div>
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Responsable</label>
+              <input value="{{ editRow.responsable }}" onInput="{{ editRow.onResp }}" placeholder="Reportero / conductor / enlace" style="width:100%;padding:10px 13px;border-radius:10px;background:#ffffff;border:1px solid #d6dce4;color:#26323f;font-family:'Barlow';font-size:14px;outline:none;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Fuente / insumo</label>
+              <input value="{{ editRow.fuente }}" onInput="{{ editRow.onFuente }}" placeholder="VTR, gráfico, enlace…" style="width:100%;padding:10px 13px;border-radius:10px;background:#ffffff;border:1px solid #d6dce4;color:#26323f;font-family:'Barlow';font-size:14px;outline:none;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Guion / gancho · <span style="color:#0e5aa8;">sale al teleprompter ⛶</span></label>
+              <textarea value="{{ editRow.gancho }}" onInput="{{ editRow.onGancho }}" rows="3" placeholder="El porqué de la nota, el gancho para retener…" style="width:100%;padding:11px 13px;border-radius:10px;background:#ffffff;border:1px solid #d6dce4;color:#3a4756;font-family:'Barlow';font-size:14px;resize:vertical;outline:none;"></textarea>
+            </div>
+          </sc-if>
+
+          <!-- BLOQUE -->
+          <sc-if value="{{ editRow.isBlock }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Nombre del segmento</label>
+              <input value="{{ editRow.label }}" onInput="{{ editRow.onLabel }}" placeholder="BLOQUE A · ÚLTIMA HORA…" style="width:100%;padding:11px 13px;border-radius:10px;background:#ffffff;border:1px solid #2f6aa8;color:#0e5aa8;font-family:'Saira Condensed';font-weight:700;font-size:18px;letter-spacing:.04em;outline:none;" />
+            </div>
+            <div style="font-size:12.5px;color:#6b7888;line-height:1.5;">Un <b style="color:#5d6b7d;">bloque</b> agrupa notas en la escaleta (como los segmentos azules de un rundown). Arrástralo en la lista para reordenar el noticiero.</div>
+          </sc-if>
+
+          <!-- CORTE -->
+          <sc-if value="{{ editRow.isCorte }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Etiqueta del corte</label>
+              <input value="{{ editRow.label }}" onInput="{{ editRow.onLabel }}" placeholder="CORTE COMERCIAL" style="width:100%;padding:11px 13px;border-radius:10px;background:#ffffff;border:1px solid #f0b8b3;color:#b81810;font-family:'Saira Condensed';font-weight:700;font-size:18px;letter-spacing:.04em;outline:none;" />
+            </div>
+            <div style="width:140px;">
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Duración</label>
+              <input value="{{ editRow.durText }}" onInput="{{ editRow.onDur }}" onBlur="{{ editRow.onDurBlur }}" style="width:100%;text-align:center;padding:10px;border-radius:10px;background:#ffffff;border:1px solid #f0b8b3;color:#b81810;font-family:'Saira Condensed';font-weight:700;font-size:18px;outline:none;" />
+            </div>
+          </sc-if>
+          </sc-if>
+
+          <!-- GUION -->
+          <sc-if value="{{ showGuion }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Guion / texto de apoyo</label>
+              <textarea value="{{ editRow.gancho }}" onInput="{{ editRow.onGancho }}" rows="9" placeholder="Lo que dice el conductor, VO, datos de apoyo, guion editorial…" style="width:100%;padding:12px 14px;border-radius:10px;background:#ffffff;border:1px solid #d6dce4;color:#26323f;font-family:'Barlow';font-size:14.5px;line-height:1.55;resize:vertical;outline:none;"></textarea>
+            </div>
+            <div>
+              <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">Responsable</label>
+              <input value="{{ editRow.responsable }}" onInput="{{ editRow.onResp }}" placeholder="Reportero / conductor / enlace" style="width:100%;padding:10px 13px;border-radius:10px;background:#ffffff;border:1px solid #d6dce4;color:#26323f;font-family:'Barlow';font-size:14px;outline:none;" />
+            </div>
+          </sc-if>
+
+          <!-- ASSETS -->
+          <sc-if value="{{ showAssets }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px dashed #cfd6df;border-radius:12px;padding:30px 18px;text-align:center;color:#8a96a6;">
+              <div style="font-size:28px;opacity:.5;margin-bottom:8px;">📎</div>
+              <div style="font-family:'Saira Condensed';font-weight:700;font-size:16px;color:#6b7888;margin-bottom:5px;">Assets vinculados</div>
+              <div style="font-size:12.5px;line-height:1.5;">Próximamente: enlaza aquí gráficos, VTRs y archivos de esta nota.</div>
+            </div>
+          </sc-if>
+          <!-- PRODUCCIÓN -->
+          <sc-if value="{{ showProd }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px dashed #cfd6df;border-radius:12px;padding:30px 18px;text-align:center;color:#8a96a6;">
+              <div style="font-size:28px;opacity:.5;margin-bottom:8px;">✔</div>
+              <div style="font-family:'Saira Condensed';font-weight:700;font-size:16px;color:#6b7888;margin-bottom:5px;">Estado de producción</div>
+              <div style="font-size:12.5px;line-height:1.5;">Próximamente: aprobación editorial / legal / QC y equipo asignado.</div>
+            </div>
+          </sc-if>
+
+          </sc-if>
+        </div>
+
+        <!-- pie -->
+        <sc-if value="{{ hasEdit }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:10px;padding:14px 20px;border-top:1px solid #dce2ea;">
+          <button onClick="{{ editRow.onDup }}" style="padding:10px 14px;border-radius:9px;border:1px solid #cfd6df;background:#eef2f7;color:#3a4756;font-family:'Saira Condensed';font-weight:700;font-size:14px;cursor:pointer;">⧉ Duplicar</button>
+          <button onClick="{{ editRow.onDel }}" style="padding:10px 14px;border-radius:9px;border:1px solid #e3b4af;background:#fbe9e7;color:#c0241a;font-family:'Saira Condensed';font-weight:700;font-size:14px;cursor:pointer;">🗑 Borrar</button>
+          <div style="flex:1;"></div>
+          <button onClick="{{ closeEdit }}" style="padding:10px 22px;border-radius:9px;border:none;background:linear-gradient(180deg,#0e5aa8,#0a4485);color:#fff;font-family:'Saira Condensed';font-weight:700;font-size:15px;letter-spacing:.03em;cursor:pointer;">Listo</button>
+        </div>
+        </sc-if>
+      </div>
+     </sc-if>
+
+     <!-- PANEL TELEPROMPTER (acoplado ⇄ flotante) -->
+     <sc-if value="{{ promptOn }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closePrompter }}" style="{{ pBackdrop }}"></div>
+      <div style="{{ pPanelStyle }}">
+        <!-- encabezado -->
+        <div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid #232c39;background:linear-gradient(180deg,#10161f,#0b1016);">
+          <span style="width:9px;height:9px;border-radius:50%;background:#ff3b2f;box-shadow:0 0 8px rgba(255,59,47,.8);"></span>
+          <div style="flex:1;font-family:'Saira Condensed';font-weight:800;font-size:16px;letter-spacing:.1em;color:#fff;">TELEPROMPTER</div>
+          <a href="prompter.html" target="_blank" style="text-decoration:none;font-family:'Saira Condensed';font-weight:700;font-size:12.5px;letter-spacing:.04em;color:#9fd0f5;border:1px solid #2a5f8a;background:#0d1f30;border-radius:8px;padding:6px 11px;">Abrir en estudio ↗</a>
+          <button onClick="{{ pDockT }}" title="{{ pDockTitle }}" style="{{ pBtn }}">{{ pDockIcon }}</button>
+          <button onClick="{{ closePrompter }}" title="Cerrar" style="{{ pBtn }}">✕</button>
+        </div>
+
+        <!-- pantalla del prompter (espejo del estudio) -->
+        <div style="flex:1;position:relative;background:#000;min-height:0;">
+          <iframe src="prompter.html" title="Teleprompter" style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
+        </div>
+
+        <!-- controles desde el RUNDOWN -->
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:11px 14px;border-top:1px solid #232c39;background:#0b1016;">
+          <button onClick="{{ pReset }}" title="Volver al inicio" style="{{ pBtn }}">⟲</button>
+          <button onClick="{{ pSlower }}" title="Más lento" style="{{ pBtn }}">◀◀</button>
+          <button onClick="{{ pPlay }}" title="Reproducir / pausar" style="height:38px;padding:0 16px;border-radius:9px;border:none;background:linear-gradient(180deg,#f47b20,#d4640f);color:#fff;font-family:'Saira Condensed';font-weight:800;font-size:14px;letter-spacing:.06em;cursor:pointer;">▶ / ❚❚</button>
+          <button onClick="{{ pFaster }}" title="Más rápido" style="{{ pBtn }}">▶▶</button>
+          <div style="width:1px;height:30px;background:#232c39;"></div>
+          <button onClick="{{ pFontDown }}" title="Texto más chico" style="{{ pBtn }}">A−</button>
+          <button onClick="{{ pFontUp }}" title="Texto más grande" style="{{ pBtn }}">A+</button>
+          <div style="width:1px;height:30px;background:#232c39;"></div>
+          <button onClick="{{ pMirror }}" title="Espejo (vidrio del teleprompter)" style="{{ pBtn }}">⇋</button>
+          <button onClick="{{ pMarker }}" title="Marcador de lectura" style="{{ pBtn }}">▤</button>
+          <div style="flex:1;min-width:6px;"></div>
+          <span style="font-family:'Barlow';font-size:11px;color:#5b6b80;">Lee el GUION de la nota seleccionada</span>
+        </div>
+      </div>
+     </sc-if>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;padding:9px 20px;border-top:1px solid #dce2ea;background:#ffffff;font-size:12px;color:#6b7888;flex-wrap:wrap;">
+      <span><b style="color:#1f2c3b;font-family:'Saira Condensed';font-size:14px;">{{ rdCount }}</b> ítems · {{ rdTotal }}</span>
+      <span style="color:#8a96a6;">{{ savedMsg }}</span>
+      <div style="flex:1;min-width:8px;"></div>
+      <div style="display:flex;align-items:center;gap:13px;">
+        <sc-for list="{{ legend }}" as="g" hint-placeholder-count="4">
+          <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:{{ g.c }};"></span>{{ g.l }}</span>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding-left:12px;border-left:1px solid #dce2ea;">
+        <button onClick="{{ zoomOut }}" style="width:26px;height:26px;border-radius:7px;border:1px solid #cfd6df;background:#ffffff;color:#5d6b7d;font-size:15px;cursor:pointer;">−</button>
+        <span style="font-family:'Saira Condensed';font-weight:700;font-size:13px;color:#3a4756;width:42px;text-align:center;">{{ zoomPct }}</span>
+        <button onClick="{{ zoomIn }}" style="width:26px;height:26px;border-radius:7px;border:1px solid #cfd6df;background:#ffffff;color:#5d6b7d;font-size:15px;cursor:pointer;">+</button>
+      </div>
+    </div>
+
+  </div><!-- /columna principal -->
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.FMT={
+      CORT:{l:'CORT',c:'#5d6b7d',bg:'#eef2f7',bd:'#d6dce4'},
+      GFX:{l:'GFX',c:'#5d6b7d',bg:'#eef2f7',bd:'#d6dce4'},
+      VV:{l:'VV',c:'#c0241a',bg:'#fbeae9',bd:'#f0c0bb'},
+      VO:{l:'VO',c:'#0e5aa8',bg:'#e8f1fb',bd:'#bcdcfa'},
+      FT:{l:'FT',c:'#3a5a8a',bg:'#edf1f8',bd:'#cdd8e8'},
+      VTR:{l:'VTR',c:'#2f6aa8',bg:'#e8f1fb',bd:'#bcdcfa'},
+      'P. ESCENA':{l:'P.ESC',c:'#9a6a12',bg:'#fbf2dd',bd:'#ecd9a8'},
+    };
+    this.GCOPTS=[['ninguno','Sin GC'],['cortinilla','Cortinilla'],['titular','Titular'],['nombre','Nombre / cargo'],['localizacion','Localización · vivo'],['datos','Datos / cifras'],['clima','Clima'],['deportes','Deportes'],['espectaculos','Espectáculos'],['mosca','Mosca / redes'],['back','Back · pantalla']];
+    this.STAT={borrador:{c:'#aab4c1'},listo:{c:'#1f7ad6'},aire:{c:'#e0241a'},usado:{c:'#8a96a6'}};
+    const built=this.buildRundowns();
+    this.state={ hour:'6AM', rundowns:built, clock:'--:--:--', today:'',
+      autoOn:false, autoIdx:-1, autoElapsed:0, editId:null, addMenu:false, dock:true, zoom:1, ptab:'detalle', q:'',
+      promptOn:false, pDock:false,
+      syncMsg:'Sincronizado en vivo con la consola.' };
+  }
+  uid(){ this._uc=(this._uc||0)+1; return 'r'+Date.now().toString(36)+this._uc; }
+  fmtDur(s){ s=Math.max(0,s|0); const m=(s/60)|0, ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
+  parseDur(v){ v=(''+v).trim(); if(/^\d{1,3}:\d{1,2}$/.test(v)){ const a=v.split(':'); return (+a[0])*60+(+a[1]); } const n=parseInt(v,10); return isNaN(n)?0:n; }
+  fmtHM(s){ s=((s%86400)+86400)%86400; const h=(s/3600)|0, m=((s%3600)/60)|0; return (h<10?'0':'')+h+':'+(m<10?'0':'')+m; }
+  hourStart(hk){ const m=/^(\d+)AM/.exec(hk); return m?((+m[1])*3600):0; }
+  fmtHMS(s){ s=Math.max(0,s|0); const h=(s/3600)|0,m=((s%3600)/60)|0,ss=s%60; const p=n=>(n<10?'0':'')+n; return p(h)+':'+p(m)+':'+p(ss); }
+  fmtClock(s){ s=((s%86400)+86400)%86400; return this.fmtHMS(s); }
+
+  buildRundowns(){
+    const seed=(typeof window!=='undefined' && window.INFO7_ESCALETA_SEED) || {horas:[]};
+    const rundowns={};
+    (seed.horas||[]).forEach(h=>{
+      rundowns[h.id]=(h.items||[]).map(it=>{
+        const r=JSON.parse(JSON.stringify(it));
+        if(r.type==='item'||r.type==='corte') r.durText=this.fmtDur(r.durSec||0);
+        if(r.type==='item'&&r.segunda==null) r.segunda='';
+        return r;
+      });
+    });
+    if(!rundowns['6AM']) rundowns['6AM']=[];
+    return rundowns;
+  }
+  curr(){ return this.state.rundowns[this.state.hour]||[]; }
+
+  // ===== Persistencia + sincronización (mismos canales que la consola) =====
+  rdSave(){ this._savedAt=Date.now(); const data={rundowns:this.state.rundowns}; this._rdSig=JSON.stringify(data);
+    try{ localStorage.setItem('info7_rundown_v2', this._rdSig); }catch(e){}
+    try{ if(this.rdChan) this.rdChan.postMessage(data); }catch(e){}
+    try{ if(window.INFO7_FIREBASE_RUNDOWN) window.INFO7_FIREBASE_RUNDOWN.write(data); }catch(e){}
+  }
+  rdApply(data){ if(!data||!data.rundowns) return; const sig=JSON.stringify({rundowns:data.rundowns}); if(sig===this._rdSig) return; this._rdSig=sig; this.setState({rundowns:data.rundowns}); }
+  rdMut(fn){ this.setState(s=>{ const arr=(s.rundowns[s.hour]||[]).slice(); fn(arr); return {rundowns:{...s.rundowns,[s.hour]:arr}}; }, ()=>this.rdSave()); }
+  setHour(h){ this.setState({hour:h, autoIdx:-1, autoElapsed:0, editId:null}); }
+  // ===== Panel de edición tipo Notion =====
+  openEdit(id){ this.setState({editId:id, addMenu:false}, ()=>this.pPub()); }
+  closeEdit(){ this.setState({editId:null}); }
+  // ===== TELEPROMPTER (control desde el RUNDOWN) =====
+  pPub(extra, id){
+    const useId = id || this.state.editId;
+    const arr=this.state.rundowns[this.state.hour]||[];
+    const r=arr.find(x=>x.id===useId);
+    const text=(r&&r.gancho)||''; const title=(r&&r.contenido)||'';
+    const live=!!(r&&r.status==='aire');
+    const msg=Object.assign({type:'text',sender:'rundown',text,title,live}, extra||{});
+    try{ localStorage.setItem('info7_prompter_text', JSON.stringify(msg)); }catch(e){}
+    try{ if(this.pChan) this.pChan.postMessage(msg); }catch(e){}
+    try{ if(window.INFO7_FIREBASE_PROMPTER) window.INFO7_FIREBASE_PROMPTER.write(msg); }catch(e){}
+  }
+  // Republica el guion de una nota tras aplicarse el cambio (debounce, lee estado fresco).
+  pRepub(id){ clearTimeout(this._pT); this._pT=setTimeout(()=>this.pPub({keep:true}, id), 140); }
+  pCmd(cmd){ const m={type:'cmd',cmd,sender:'rundown'};
+    try{ if(this.pChan) this.pChan.postMessage(m); }catch(e){}
+    try{ if(window.INFO7_FIREBASE_PROMPTER) window.INFO7_FIREBASE_PROMPTER.write(m); }catch(e){} }
+  togglePrompter(){ this.setState(s=>({promptOn:!s.promptOn}), ()=>{ if(this.state.promptOn) this.pPub(); }); }
+  pDockT(){ this.setState(s=>({pDock:!s.pDock})); }
+  toggleAddMenu(){ this.setState(s=>({addMenu:!s.addMenu})); }
+  toggleDock(){ this.setState(s=>({dock:!s.dock})); }
+  setPtab(t){ this.setState({ptab:t}); }
+  setQ(v){ this.setState({q:v}); }
+  az(e){ const t=e&&e.target; if(!t) return; t.style.height='auto'; t.style.height=(t.scrollHeight)+'px'; }
+  setZoom(d){ this.setState(s=>({zoom: Math.min(1.4, Math.max(0.7, +(s.zoom+d).toFixed(2)))})); }
+  addAndEdit(type){
+    const id=this.uid();
+    this.rdMut(a=>{
+      if(type==='item') a.push({id,type:'item',num:0,contenido:'',formato:'VV',durSec:20,durText:'0:20',responsable:'',graficos:'',fuente:'',gancho:'',segunda:'',gcKind:'titular',status:'borrador'});
+      else if(type==='block'){ const n=a.filter(x=>x.type==='block').length; const L='ABCDEFGHIJ'[n]||('S'+(n+1)); a.push({id,type:'block',label:'BLOQUE '+L}); }
+      else a.push({id,type:'corte',label:'CORTE COMERCIAL',durSec:120,durText:'2:00',note:''});
+    });
+    this.setState({editId:id, addMenu:false});
+  }
+  rdField(id,k,v){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r) r[k]=v; }); }
+  rdDurInput(id,v){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r){ r.durText=v; r.durSec=this.parseDur(v); } }); }
+  rdDurBlur(id){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r) r.durText=this.fmtDur(r.durSec||0); }); }
+  rdCycleStatus(id){ const order=['borrador','listo','usado']; this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(!r) return; if(r.status==='aire'){ r.status='listo'; return; } const i=order.indexOf(r.status); r.status=order[(i+1)%order.length]; }); }
+  rdDup(id){ this.rdMut(a=>{ const i=a.findIndex(x=>x.id===id); if(i<0) return; const c=JSON.parse(JSON.stringify(a[i])); c.id=this.uid(); if(c.status==='aire') c.status='listo'; a.splice(i+1,0,c); }); }
+  rdDel(id){ this.rdMut(a=>{ const i=a.findIndex(x=>x.id===id); if(i>=0) a.splice(i,1); }); }
+  rdAddItem(){ this.rdMut(a=>{ a.push({id:this.uid(),type:'item',num:0,contenido:'NUEVA NOTA',formato:'VV',durSec:20,durText:'0:20',responsable:'',graficos:'',fuente:'',gancho:'',segunda:'',gcKind:'titular',status:'borrador'}); }); }
+  rdAddBlock(){ this.rdMut(a=>{ const n=a.filter(x=>x.type==='block').length; const L='ABCDEFGHIJ'[n]||('S'+(n+1)); a.push({id:this.uid(),type:'block',label:'BLOQUE '+L}); }); }
+  rdAddBreak(){ this.rdMut(a=>{ a.push({id:this.uid(),type:'corte',label:'CORTE COMERCIAL',durSec:120,durText:'2:00',note:''}); }); }
+  reorder(fromId,toId){ if(!fromId||fromId===toId) return; this.rdMut(a=>{ const fi=a.findIndex(x=>x.id===fromId); const ti=a.findIndex(x=>x.id===toId); if(fi<0||ti<0) return; const m=a.splice(fi,1)[0]; a.splice(ti,0,m); }); }
+
+  // ===== Importar Excel =====
+  async importXlsx(file){
+    if(!file) return;
+    try{
+      this.setState({syncMsg:'Leyendo '+file.name+'…'});
+      const buf=await file.arrayBuffer();
+      const parsed=await window.INFO7_parseEscaletaXlsx(buf);
+      if(!parsed.horas.length){ this.setState({syncMsg:'No se encontraron hojas de horario (6AM, 7AM…).'}); return; }
+      this.mergeIngest(parsed);
+      const n=parsed.horas.reduce((a,h)=>a+h.items.filter(i=>i.type==='item').length,0);
+      this.setState({syncMsg:'✓ Importado: '+parsed.horas.length+' horas · '+n+' notas.'});
+    }catch(e){ this.setState({syncMsg:'Error al leer el Excel: '+(e&&e.message||e)}); }
+  }
+  mergeIngest(parsed){
+    this.setState(s=>{
+      const rundowns={...s.rundowns};
+      (parsed.horas||[]).forEach(h=>{
+        const byId={}; (s.rundowns[h.id]||[]).forEach(r=>{ byId[r.id]=r; });
+        rundowns[h.id]=(h.items||[]).map(it=>{
+          const r=JSON.parse(JSON.stringify(it)); const old=byId[r.id];
+          if(r.type==='item'){ r.durText=this.fmtDur(r.durSec||0); if(r.segunda==null) r.segunda='';
+            if(old&&old.type==='item'&&(old.status==='aire'||old.status==='usado')) r.status=old.status; }
+          else if(r.type==='corte'){ r.durText=this.fmtDur(r.durSec||0); }
+          return r;
+        });
+      });
+      return {rundowns};
+    }, ()=>this.rdSave());
+  }
+
+  // ===== AUTO-RUN (ensayo de tiempos · local, no toca el aire) =====
+  autoToggle(){ this.setState(s=>{ if(s.autoOn) return {autoOn:false}; let idx=s.autoIdx; if(idx<0){ const arr=(s.rundowns[s.hour]||[]); idx=arr.findIndex(x=>x.type==='item'); } return {autoOn:true, autoIdx:idx, autoElapsed: s.autoIdx<0?0:s.autoElapsed}; }, ()=>{ if(this.state.autoOn){ this._lastAutoIdx=this.state.autoIdx; this.pAutoNote(this.state.autoIdx, true); } else { this.pCmd('pause'); } }); }
+  autoReset(){ this.setState({autoOn:false, autoIdx:-1, autoElapsed:0}, ()=>{ this._lastAutoIdx=-1; this.pCmd('pause'); this.pCmd('reset'); }); }
+  autoTick(){ if(!this.state.autoOn) return; this.setState(s=>{ const arr=s.rundowns[s.hour]||[]; if(s.autoIdx<0||s.autoIdx>=arr.length) return {autoOn:false}; const cur=arr[s.autoIdx]; const dur=(cur&&cur.durSec)||0; let el=s.autoElapsed+1; if(el>=dur){ let ni=s.autoIdx+1; while(ni<arr.length && arr[ni].type==='block') ni++; if(ni>=arr.length) return {autoOn:false, autoElapsed:dur}; return {autoIdx:ni, autoElapsed:0}; } return {autoElapsed:el}; }, ()=>{
+    if(!this.state.autoOn){ if(this._lastAutoIdx!==-2){ this._lastAutoIdx=-2; this.pCmd('pause'); } return; }
+    if(this.state.autoIdx!==this._lastAutoIdx){ this._lastAutoIdx=this.state.autoIdx; this.pAutoNote(this.state.autoIdx, true); }
+  }); }
+  // Manda el guion de la nota activa del modo automático al prompter y lo pone a correr.
+  pAutoNote(idx, play){ const arr=this.state.rundowns[this.state.hour]||[]; const r=arr[idx]; if(!r||r.type!=='item') return;
+    const text=r.gancho||''; const title=r.contenido||''; const live=r.status==='aire';
+    const msg={type:'text',sender:'rundown',text,title,live};
+    try{ localStorage.setItem('info7_prompter_text', JSON.stringify(msg)); }catch(e){}
+    try{ if(this.pChan) this.pChan.postMessage(msg); }catch(e){}
+    try{ if(window.INFO7_FIREBASE_PROMPTER) window.INFO7_FIREBASE_PROMPTER.write(msg); }catch(e){}
+    if(play) setTimeout(()=>this.pCmd('play'), 120);
+  }
+
+  componentDidMount(){
+    const tick=()=>{ const d=new Date(); const p=n=>(n<10?'0':'')+n; this.setState({clock:p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()), today:d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()}); };
+    tick(); this._clk=setInterval(tick,1000);
+    this._auto=setInterval(()=>this.autoTick(),1000);
+    try{ const raw=localStorage.getItem('info7_rundown_v2'); if(raw) this.rdApply(JSON.parse(raw)); }catch(e){}
+    try{ this.rdChan=new BroadcastChannel('info7_rundown'); this.rdChan.onmessage=(e)=>this.rdApply(e.data); }catch(e){ this.rdChan=null; }
+    this._rdSub=()=>{ if(this._rdSubbed||!window.INFO7_FIREBASE_RUNDOWN) return; this._rdSubbed=true; try{ window.INFO7_FIREBASE_RUNDOWN.subscribe((d)=>this.rdApply(d)); }catch(e){} };
+    this._inSub=()=>{ if(this._inSubbed||!window.INFO7_FIREBASE_INGEST) return; this._inSubbed=true; try{ window.INFO7_FIREBASE_INGEST.subscribe((d)=>{ if(d&&d.horas&&d.horas.length){ this.mergeIngest(d); const n=d.horas.reduce((a,h)=>a+h.items.filter(i=>i.type==='item').length,0); this.setState({syncMsg:'⟳ Escaleta del productor actualizada · '+n+' notas.'}); } }); }catch(e){} };
+    this._rdSub(); this._inSub(); window.addEventListener('info7-fb-ready', this._fbReady=()=>{ this._rdSub(); this._inSub(); this._pSub(); });
+    // TELEPROMPTER
+    try{ this.pChan=new BroadcastChannel('info7_prompter'); this.pChan.onmessage=(e)=>{ const d=e.data; if(d&&d.type==='hello') this.pPub(); }; }catch(e){ this.pChan=null; }
+    this._pSub=()=>{ if(this._pSubbed||!window.INFO7_FIREBASE_PROMPTER) return; this._pSubbed=true; try{ window.INFO7_FIREBASE_PROMPTER.subscribe((d)=>{ if(d&&d.type==='hello') this.pPub(); }); }catch(e){} };
+    this._pSub();
+  }
+  componentWillUnmount(){ clearInterval(this._clk); clearInterval(this._auto); if(this.rdChan)this.rdChan.close(); if(this.pChan)this.pChan.close(); if(this._fbReady) window.removeEventListener('info7-fb-ready',this._fbReady); }
+
+  renderVals(){
+    const st=this.state;
+    const HOURS=[['6AM','6 AM'],['7AM','7 AM'],['8AM','8 AM'],['9AM','9 AM'],['10AM','10 AM']];
+    const hourTab=(a)=>({padding:'8px 18px',borderRadius:'9px',border:'1px solid '+(a?'#0e5aa8':'#cfd6df'),background:a?'linear-gradient(180deg,#0e5aa8,#0a4485)':'#eef2f7',color:a?'#fff':'#5d6b7d',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'15px',letterSpacing:'.05em',cursor:'pointer',whiteSpace:'nowrap'});
+    const hourTabs=HOURS.map(([k,l])=>({k,l,on:()=>this.setHour(k),style:hourTab(st.hour===k)}));
+
+    const btnPrimary={padding:'9px 14px',borderRadius:'9px',border:'none',background:'linear-gradient(180deg,#0e5aa8,#0a4485)',color:'#fff',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'14px',letterSpacing:'.03em',cursor:'pointer',whiteSpace:'nowrap'};
+    const btnGhost={padding:'9px 12px',borderRadius:'8px',border:'1px solid #cfd6df',background:'#eef2f7',color:'#3a4756',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'14px',letterSpacing:'.03em',cursor:'pointer',whiteSpace:'nowrap'};
+    const iconBtn={flex:'none',width:'28px',height:'28px',borderRadius:'7px',border:'1px solid #cfd6df',background:'#ffffff',color:'#7a8696',fontSize:'12px',cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center'};
+    const COLS='22px 38px 30px 66px minmax(230px,1.7fr) 60px 62px 64px minmax(120px,1fr) 120px minmax(120px,1fr) minmax(150px,1.4fr) 86px';
+    const fmtChip=(code)=>{ const f=this.FMT[code]||{l:(code||'—'),c:'#647182',bg:'#eef2f7',bd:'#d6dce4'}; return {label:f.l, style:{display:'inline-block',padding:'3px 7px',borderRadius:'6px',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'12px',letterSpacing:'.03em',color:f.c,background:f.bg,border:'1px solid '+f.bd,whiteSpace:'nowrap',minWidth:'42px',textAlign:'center'}}; };
+
+    const arr=st.rundowns[st.hour]||[];
+    const q=(st.q||'').trim().toLowerCase();
+    const endOfHour=this.hourStart(st.hour)+3600;
+    const segDur={}; { let cb=null,acc=0; arr.forEach(r=>{ if(r.type==='block'){ if(cb!=null) segDur[cb]=acc; cb=r.id; acc=0; } else acc+=(r.durSec||0); }); if(cb!=null) segDur[cb]=acc; }
+    let cum=this.hourStart(st.hour); let itemNo=0; let total=0;
+    const rdRows=arr.map((r,idx)=>{
+      const hitAt=this.fmtHM(cum); cum+=(r.durSec||0); total+=(r.durSec||0);
+      const backSec=endOfHour-cum; const over=backSec<0;
+      const base={ id:r.id, isItem:r.type==='item', isBlock:r.type==='block', isCorte:r.type==='corte',
+        cls: r.type==='item'?'eItem':(r.type==='block'?'eBlock':'eCorte'),
+        hitStr:hitAt, iconBtn,
+        onDragStart:(e)=>{ this._drag=r.id; try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text','x');}catch(_){}},
+        onDragOver:(e)=>{ e.preventDefault(); }, onDrop:(e)=>{ e.preventDefault(); this.reorder(this._drag,r.id); this._drag=null; },
+        onDragEnd:()=>{ this._drag=null; }, onDel:()=>this.rdDel(r.id) };
+      if(r.type==='block'){ return {...base, label:r.label, segDurStr:this.fmtDur(segDur[r.id]||0), onEdit:()=>this.openEdit(r.id),
+        rowStyle:{display:'flex',alignItems:'center',gap:'10px',padding:'9px 14px',background:'linear-gradient(90deg,#0e4d8f,#0a3a6e)',borderTop:'1px solid #2f7ad0',borderBottom:'1px solid #082a52'} }; }
+      if(r.type==='corte'){ return {...base, label:r.label, durText:r.durText!=null?r.durText:this.fmtDur(r.durSec||0),
+        onDur:(e)=>this.rdDurInput(r.id,e.target.value), onDurBlur:()=>this.rdDurBlur(r.id), onEdit:()=>this.openEdit(r.id),
+        rowStyle:{display:'flex',alignItems:'center',gap:'10px',padding:'8px 14px',background:'#fbe9e7',borderTop:'1px solid #f0c4bf',borderBottom:'1px solid #f0c4bf'} }; }
+      itemNo++;
+      const isAuto=st.autoIdx===idx && st.autoOn;
+      const wasAuto=st.autoIdx>idx && st.autoIdx>=0;
+      const isAir=r.status==='aire';
+      const sc=this.STAT[r.status]||this.STAT.borrador;
+      const fc=fmtChip(r.formato);
+      let bg=(itemNo%2===0)?'#ffffff':'#f5f8fb';
+      if(isAir) bg='#fbeae9';
+      else if(isAuto) bg='#dfeeff';
+      const match = !q || (((r.contenido||'')+' '+(r.responsable||'')+' '+(r.fuente||'')+' '+(r.gancho||'')+' '+(r.segunda||'')).toLowerCase().indexOf(q)>=0);
+      const rowStyle={display: match?'grid':'none',gridTemplateColumns:COLS,gap:'0',padding:'0 4px',minHeight:'36px',
+        background:bg, borderBottom:'1px solid #e6eaf0', borderLeft:'3px solid '+(isAir?'#e0241a':(isAuto?'#0e5aa8':'transparent')),
+        opacity:(r.status==='usado'||wasAuto)?'.5':'1', cursor:'grab'};
+      return {...base,
+        num:String(itemNo).padStart(2,'0'),
+        contenido:r.contenido||'', segunda:r.segunda||'', responsable:r.responsable||'', fuente:r.fuente||'', gancho:r.gancho||'',
+        gcKind:r.gcKind||'titular', gcOpts:this.GCOPTS,
+        fmtLabel:fc.label, fmtStyle:fc.style,
+        durText:r.durText!=null?r.durText:this.fmtDur(r.durSec||0),
+        backStr:(over?'-':'')+this.fmtDur(Math.abs(backSec)), backColor:over?'#ff6a5a':'#6b7888',
+        dotStyle:{alignSelf:'center',justifySelf:'center',width:'14px',height:'14px',borderRadius:'50%',background:sc.c,cursor:'pointer',boxShadow:isAir?'0 0 8px rgba(224,36,26,.8)':'none', animation:isAir?'ePulse 1.2s ease-in-out infinite':'none'},
+        rowStyle,
+        onStatus:()=>this.rdCycleStatus(r.id),
+        onContenido:(e)=>{ this.az(e); this.rdField(r.id,'contenido',e.target.value); this.pRepub(r.id); },
+        onSegunda:(e)=>{ this.az(e); this.rdField(r.id,'segunda',e.target.value); },
+        onResp:(e)=>{ this.az(e); this.rdField(r.id,'responsable',e.target.value); },
+        onFuente:(e)=>{ this.az(e); this.rdField(r.id,'fuente',e.target.value); },
+        onGancho:(e)=>{ this.az(e); this.rdField(r.id,'gancho',e.target.value); this.pRepub(r.id); },
+        onGc:(e)=>this.rdField(r.id,'gcKind',e.target.value),
+        onDur:(e)=>this.rdDurInput(r.id,e.target.value), onDurBlur:()=>this.rdDurBlur(r.id),
+        onEdit:()=>this.openEdit(r.id), onDup:()=>this.rdDup(r.id) };
+    });
+    const rdCount=arr.filter(x=>x.type==='item').length;
+    const diff=total-3600; const ad=Math.abs(diff);
+    const meterColor= ad<=30?'#1f7ad6':(ad<=120?'#c8881a':'#e0241a');
+    const meterDiff= diff===0?'':(diff>0?'+':'-')+this.fmtDur(ad);
+    // tiempos en vivo (enganchados al modo automático)
+    let elapsed=0; if(st.autoIdx>=0){ for(let i=0;i<st.autoIdx && i<arr.length;i++) elapsed+=(arr[i].durSec||0); if(st.autoIdx<arr.length) elapsed+=st.autoElapsed; }
+    const remaining=Math.max(0,total-elapsed);
+    const _d=new Date(); const nowSec=_d.getHours()*3600+_d.getMinutes()*60+_d.getSeconds();
+    const metricCells=[
+      {label:'Duración total',value:this.fmtHMS(total),color:'#1f2c3b'},
+      {label:'Transcurrido',value:this.fmtHMS(elapsed),color: st.autoOn?'#1f7ad6':'#6b7888'},
+      {label:'Restante',value:this.fmtHMS(remaining),color:'#0e5aa8'},
+      {label:'Desfase 60:00',value:meterDiff||'0:00',color:meterColor},
+      {label:'Hora fin',value:this.fmtClock(nowSec+remaining),color:'#1f2c3b'},
+    ];
+    const cnt={listo:0,borrador:0,aire:0,usado:0}; arr.forEach(r=>{ if(r.type==='item') cnt[r.status]=(cnt[r.status]||0)+1; });
+    const estadoChips=[['listo','Listo','#1f7ad6'],['borrador','Borrador','#5d6b7d'],['aire','Al aire','#e0241a'],['usado','Usado','#8a96a6']].map(([k,l,c])=>({k,l,c,n:cnt[k]||0}));
+    const anyAir=cnt.aire>0;
+    const alAireLabel=anyAir?'AL AIRE':'EN PREPARACIÓN';
+    const alAireColor=anyAir?'#ff5a4a':'#5d6b7d';
+    const alAireSub=anyAir?(cnt.aire+' nota'+(cnt.aire>1?'s':'')+' al aire'):'Lista para salir';
+    const alAireStyle={display:'flex',flexDirection:'column',justifyContent:'center',padding:'8px 16px',borderRadius:'10px',minWidth:'150px',background:anyAir?'linear-gradient(180deg,#fbeae9,#fbeae9)':'#ffffff',border:'1px solid '+(anyAir?'#e3b4af':'#dce2ea')};
+    const alAireDot={width:'11px',height:'11px',borderRadius:'50%',background:anyAir?'#ff3b2f':'#aab4c1',boxShadow:anyAir?'0 0 8px rgba(255,59,47,.8)':'none',animation:anyAir?'ePulse 1.2s ease-in-out infinite':'none'};
+    const legend=[['#1f7ad6','Listo'],['#5d6b7d','Borrador'],['#e0241a','Al aire'],['#8a96a6','Usado']].map(([c,l])=>({c,l}));
+    const savedMsg=this._savedAt?('Último guardado '+this.fmtClock((()=>{const x=new Date(this._savedAt);return x.getHours()*3600+x.getMinutes()*60+x.getSeconds();})())):'Sincronizado en vivo con la consola';
+
+    // transporte auto
+    let autoCountdown='--:--', autoStateLabel='AUTOMÁTICO', autoCdColor='#6b7888';
+    if(st.autoIdx>=0 && arr[st.autoIdx]){ const cur=arr[st.autoIdx]; const rem=Math.max(0,(cur.durSec||0)-st.autoElapsed); autoCountdown=this.fmtDur(rem); autoStateLabel='Nota '+(arr.slice(0,st.autoIdx+1).filter(x=>x.type==='item').length).toString().padStart(2,'0'); autoCdColor= rem<=5?'#e0241a':(st.autoOn?'#1f7ad6':'#c8881a'); }
+    const autoBtnStyle={width:'40px',height:'40px',borderRadius:'9px',border:'none',cursor:'pointer',fontSize:'16px',color:'#fff',fontWeight:'700',background: st.autoOn?'linear-gradient(180deg,#e0241a,#b01510)':'linear-gradient(180deg,#0e5aa8,#0a4485)'};
+
+    // ===== Panel de edición (Notion) =====
+    const er = st.editId ? arr.find(x=>x.id===st.editId) : null;
+    let editRow=null;
+    if(er){
+      const FMTLIST=['VV','VO','CORT','GFX','VTR','FT','P. ESCENA'];
+      const fmtChips=FMTLIST.map(code=>{ const f=this.FMT[code]||{}; const sel=(er.formato||'')===code; return {code,label:f.l||code,on:()=>this.rdField(er.id,'formato',code),
+        style:{padding:'7px 12px',borderRadius:'8px',cursor:'pointer',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'14px',letterSpacing:'.03em',
+          color: sel?(f.c||'#fff'):'#647182', background: sel?(f.bg||'#e8f1fb'):'#ffffff', border:'1px solid '+(sel?(f.bd||'#ecd9a8'):'#dde3ea')}}; });
+      const STATLIST=[['borrador','Borrador','#5d6b7d'],['listo','Listo','#1f7ad6'],['aire','Al aire','#ff7a6e'],['usado','Usado','#8a96a6']];
+      const statChips=STATLIST.map(([k,l,c])=>{ const sel=(er.status||'borrador')===k; return {k,l,on:()=>this.rdField(er.id,'status',k),
+        style:{display:'flex',alignItems:'center',gap:'7px',padding:'7px 12px',borderRadius:'8px',cursor:'pointer',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'14px',
+          color: sel?'#13243a':'#647182', background: sel?'#dbe7f5':'#ffffff', border:'1px solid '+(sel?c:'#dde3ea')},
+        dot:{width:'10px',height:'10px',borderRadius:'50%',background:c,flex:'none'}}; });
+      editRow={ id:er.id, isItem:er.type==='item', isBlock:er.type==='block', isCorte:er.type==='corte',
+        title: er.type==='item'?'Editar nota':(er.type==='block'?'Editar bloque':'Editar corte'),
+        kicker: er.type==='item'?'NOTA DE LA ESCALETA':(er.type==='block'?'SEGMENTO / BLOQUE':'CORTE COMERCIAL'),
+        contenido:er.contenido||'', segunda:er.segunda||'', label:er.label||'',
+        durText:er.durText!=null?er.durText:this.fmtDur(er.durSec||0),
+        responsable:er.responsable||'', fuente:er.fuente||'', gancho:er.gancho||'', gcKind:er.gcKind||'titular',
+        gcOpts:this.GCOPTS, fmtChips, statChips,
+        previewKicker:(({localizacion:'EN VIVO',clima:'CLIMA',datos:'DATOS',deportes:'DEPORTES',espectaculos:'ESPECTÁCULOS',nombre:'EN VIVO'})[er.gcKind]||'INFO 7'),
+        previewContenido:(er.contenido||'TITULAR DE LA NOTA'),
+        previewSegunda:(er.segunda||''), previewHasSegunda:!!(er.segunda&&er.segunda.trim()),
+        onContenido:(e)=>{ this.rdField(er.id,'contenido',e.target.value); this.pRepub(er.id); },
+        onSegunda:(e)=>this.rdField(er.id,'segunda',e.target.value),
+        onLabel:(e)=>this.rdField(er.id,'label',e.target.value),
+        onResp:(e)=>this.rdField(er.id,'responsable',e.target.value),
+        onFuente:(e)=>this.rdField(er.id,'fuente',e.target.value),
+        onGancho:(e)=>{ this.rdField(er.id,'gancho',e.target.value); this.pRepub(er.id); },
+        onGc:(e)=>this.rdField(er.id,'gcKind',e.target.value),
+        onDur:(e)=>this.rdDurInput(er.id,e.target.value), onDurBlur:()=>this.rdDurBlur(er.id),
+        onDel:()=>{ this.rdDel(er.id); this.closeEdit(); },
+        onDup:()=>this.rdDup(er.id) };
+    }
+    const addItems=[['item','＋ Nota','#0e5aa8'],['block','▦ Bloque / segmento','#1f7ad6'],['corte','⏸ Corte comercial','#e0241a']].map(([t,l,c])=>({t,l,c,on:()=>this.addAndEdit(t)}));
+
+    const dock=st.dock; const hasEdit=!!editRow; const panelVisible= dock || hasEdit;
+    const hasItemEdit= hasEdit && editRow.isItem;
+    const ptab= hasItemEdit? st.ptab : 'detalle';
+    const tabStyle=(a)=>({padding:'8px 2px',cursor:'pointer',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'13px',letterSpacing:'.05em',textTransform:'uppercase',color:a?'#13243a':'#6b7888',borderBottom:'2px solid '+(a?'#0e5aa8':'transparent')});
+    const panelTabs=[['detalle','Detalle'],['guion','Guion'],['assets','Assets'],['produccion','Producción']].map(([k,l])=>({k,l,on:()=>this.setPtab(k),style:tabStyle(ptab===k)}));
+    const panelWrapStyle= dock
+      ? {position:'relative',flex:'none',width:'430px',maxWidth:'46vw',height:'100%',background:'linear-gradient(180deg,#f5f7fa,#ffffff)',borderLeft:'1px solid #d6dce4',display:'flex',flexDirection:'column',zIndex:'5'}
+      : {position:'absolute',right:'0',top:'0',height:'100%',width:'430px',maxWidth:'92vw',background:'linear-gradient(180deg,#f5f7fa,#ffffff)',borderLeft:'1px solid #d6dce4',boxShadow:'-24px 0 60px rgba(0,0,0,.5)',display:'flex',flexDirection:'column',zIndex:'50'};
+    const panelBackdropStyle= dock ? {display:'none'} : {position:'absolute',inset:'0',background:'rgba(4,7,11,.55)',backdropFilter:'blur(2px)',zIndex:'40'};
+    // navegación lateral (Rundown + Prompter activos; el resto, módulos a futuro)
+    const NAV=[['rundown','▥','Rundown','rd'],['prompter','⛶','Prompter','pr'],['historias','▤','Historias',false],['guiones','✎','Guiones',false],['assets','▦','Assets',false],['equipo','◑','Equipo',false],['config','⚙','Config',false]];
+    const navItems=NAV.map(([k,ic,l,act])=>{ const active= act==='rd' || (act==='pr'&&st.promptOn); return {k,ic,l,active,
+      style:{display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',width:'58px',padding:'9px 0',borderRadius:'10px',cursor:'pointer',border:'1px solid '+(active?'#bcdcfa':'transparent'),background:active?'linear-gradient(180deg,#e8f1fb,#dbe9f8)':'transparent',color:active?'#1f7ad6':'#6b7888'},
+      onClick:()=> act==='pr'? this.togglePrompter() : (act==='rd'? null : this.setState({syncMsg:'Módulo "'+l+'" — próximamente.'})) }; });
+    // panel del teleprompter
+    const pBtn={width:'38px',height:'38px',borderRadius:'9px',border:'1px solid #cfd6df',background:'#ffffff',color:'#3a4756',fontSize:'14px',fontWeight:'700',cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center'};
+    const pPanelStyle= st.pDock
+      ? {position:'relative',flex:'none',width:'460px',maxWidth:'48vw',height:'100%',background:'#0a0e14',borderLeft:'1px solid #d6dce4',display:'flex',flexDirection:'column',zIndex:'6'}
+      : {position:'absolute',right:'0',top:'0',height:'100%',width:'520px',maxWidth:'94vw',background:'#0a0e14',borderLeft:'1px solid #232c39',boxShadow:'-24px 0 60px rgba(0,0,0,.55)',display:'flex',flexDirection:'column',zIndex:'60'};
+    const pBackdrop= st.pDock ? {display:'none'} : {position:'absolute',inset:'0',background:'rgba(4,7,11,.6)',backdropFilter:'blur(2px)',zIndex:'55'};
+
+    return {
+      clock:st.clock, today:st.today, navItems,
+      promptOn:st.promptOn, pPanelStyle, pBackdrop, pBtn, pDockIcon: st.pDock?'⤢':'⇥', pDockTitle: st.pDock?'Desacoplar (flotar)':'Acoplar a la derecha',
+      closePrompter:()=>this.setState({promptOn:false}), pDockT:()=>this.pDockT(),
+      pPlay:()=>this.pCmd('toggle'), pSlower:()=>this.pCmd('spd-'), pFaster:()=>this.pCmd('spd+'),
+      pFontDown:()=>this.pCmd('font-'), pFontUp:()=>this.pCmd('font+'), pMirror:()=>this.pCmd('mirror'),
+      pMarker:()=>this.pCmd('marker'), pReset:()=>this.pCmd('reset'),
+      q:st.q, onSearch:(e)=>this.setQ(e.target.value),
+      panelVisible, hasEdit, noEdit:!hasEdit, hasItemEdit, panelTabs,
+      showDetalle: ptab==='detalle', showGuion: ptab==='guion', showAssets: ptab==='assets', showProd: ptab==='produccion',
+      editRow, closeEdit:()=>this.closeEdit(),
+      toggleDock:()=>this.toggleDock(), dockIcon: dock?'⤢':'⇥', dockTitle: dock?'Desacoplar (flotar)':'Acoplar a la derecha',
+      panelWrapStyle, panelBackdropStyle,
+      addMenuOpen:st.addMenu, toggleAddMenu:()=>this.toggleAddMenu(), addItems,
+      hourTabs, btnPrimary, btnGhost, zoom:st.zoom,
+      zoomIn:()=>this.setZoom(.1), zoomOut:()=>this.setZoom(-.1), zoomPct:Math.round(st.zoom*100)+'%',
+      onImportFile:(e)=>{ const f=e.target.files&&e.target.files[0]; this.importXlsx(f); e.target.value=''; },
+      rdAddItem:()=>this.rdAddItem(), rdAddBlock:()=>this.rdAddBlock(), rdAddBreak:()=>this.rdAddBreak(),
+      rdRows, rdCount, rdTotal:this.fmtDur(total), meterColor, meterDiff, syncMsg:st.syncMsg,
+      metricCells, estadoChips, alAireLabel, alAireColor, alAireSub, alAireStyle, alAireDot, legend, savedMsg,
+      autoToggle:()=>this.autoToggle(), autoReset:()=>this.autoReset(),
+      autoBtnLabel: st.autoOn?'❚❚':'▶', autoBtnStyle, autoCountdown, autoStateLabel, autoCdColor,
+      autoBorder: st.autoOn?'#0e5aa8':'#dce2ea',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -31,9 +31,11 @@ import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebase
   var program = makeChannel();
   var rundown = makeChannel();
   var ingest = makeChannel();
+  var prompter = makeChannel();
   window.INFO7_FIREBASE = Object.assign(window.INFO7_FIREBASE || {}, program.api);
   window.INFO7_FIREBASE_RUNDOWN = Object.assign(window.INFO7_FIREBASE_RUNDOWN || {}, rundown.api);
   window.INFO7_FIREBASE_INGEST = Object.assign(window.INFO7_FIREBASE_INGEST || {}, ingest.api);
+  window.INFO7_FIREBASE_PROMPTER = Object.assign(window.INFO7_FIREBASE_PROMPTER || {}, prompter.api);
 
   var cfg = window.INFO7_FIREBASE_CONFIG;
   if (!(cfg && cfg.databaseURL)) {
@@ -57,8 +59,13 @@ import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebase
     var rIn = ref(db, cfg.ingestPath || "info7/ingest");
     onValue(rIn, function (snap) { var v = snap.val(); if (v) ingest.emit(v.payload || v); });
 
+    // Teleprompter: el RUNDOWN manda guion + comandos; el prompter del estudio recibe (y publica su posición).
+    var rPr = ref(db, cfg.prompterPath || "info7/prompter");
+    prompter.bind(function (p) { try { set(rPr, { payload: p, t: Date.now() }); } catch (e) {} });
+    onValue(rPr, function (snap) { var v = snap.val(); if (v && v.payload) prompter.emit(v.payload); });
+
     window.dispatchEvent(new Event("info7-fb-ready"));
-    console.info("INFO 7 · Firebase conectado · gráfico:", cfg.path || "info7/cintillo", "· escaleta:", cfg.rundownPath || "info7/rundown", "· ingesta:", cfg.ingestPath || "info7/ingest");
+    console.info("INFO 7 · Firebase conectado · gráfico:", cfg.path || "info7/cintillo", "· escaleta:", cfg.rundownPath || "info7/rundown", "· ingesta:", cfg.ingestPath || "info7/ingest", "· prompter:", cfg.prompterPath || "info7/prompter");
   } catch (e) {
     console.warn("INFO 7 · Firebase no disponible:", e && e.message);
   }

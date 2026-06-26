@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<script src="firebase-config.js"></script>
+<script type="module" src="firebase-bridge.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;}
+    html,body{margin:0;height:100%;background:#000;}
+    #pTrack p{margin:0 0 .55em;}
+    #pTrack p:last-child{margin-bottom:0;}
+    ::-webkit-scrollbar{width:0;height:0;}
+  </style>
+  <template id="__bundler_thumbnail" data-bg-color="#000000">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect x="180" y="250" width="840" height="40" rx="8" fill="#ffffff"/>
+      <rect x="180" y="330" width="720" height="40" rx="8" fill="#ffffff"/>
+      <rect x="180" y="410" width="800" height="40" rx="8" fill="#9aa6b6"/>
+      <rect x="180" y="490" width="600" height="40" rx="8" fill="#9aa6b6"/>
+      <rect x="120" y="360" width="960" height="4" fill="#f47b20"/>
+    </svg>
+  </template>
+</helmet>
+
+  <div style="position:fixed;inset:0;background:#000;color:#fff;font-family:'Barlow',sans-serif;overflow:hidden;user-select:none;" onWheel="{{ onWheel }}" onPointerDown="{{ onDown }}">
+
+    <!-- viewport -->
+    <div id="pView" style="position:absolute;inset:0;overflow:hidden;">
+      <div id="pMirror" style="position:absolute;left:0;right:0;top:0;will-change:transform;">
+        <div id="pTrack" style="padding:46vh 9vw;font-weight:600;line-height:1.34;letter-spacing:.005em;white-space:pre-wrap;word-break:break-word;font-size:{{ fontPx }};">{{ text }}</div>
+      </div>
+    </div>
+
+    <!-- vignette -->
+    <div style="position:absolute;left:0;right:0;top:0;height:24%;background:linear-gradient(180deg,#000,rgba(0,0,0,0));pointer-events:none;"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:26%;background:linear-gradient(0deg,#000,rgba(0,0,0,0));pointer-events:none;"></div>
+
+    <!-- marcador de lectura -->
+    <sc-if value="{{ marker }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;left:0;right:0;top:40%;height:0;border-top:3px solid rgba(244,123,32,.55);pointer-events:none;"></div>
+      <div style="position:absolute;left:0;right:0;top:calc(40% - 46px);height:92px;background:linear-gradient(180deg,rgba(244,123,32,0),rgba(244,123,32,.10),rgba(244,123,32,0));pointer-events:none;"></div>
+      <div style="position:absolute;left:18px;top:calc(40% - 11px);width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:16px solid #f47b20;pointer-events:none;"></div>
+      <div style="position:absolute;right:18px;top:calc(40% - 11px);width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-right:16px solid #f47b20;pointer-events:none;"></div>
+    </sc-if>
+
+    <!-- placeholder -->
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;color:#5b6b80;pointer-events:none;">
+        <div style="font-family:'Saira Condensed';font-weight:800;font-size:30px;letter-spacing:.18em;color:#7e8ea3;">INFO 7 · PROMPTER</div>
+        <div style="font-size:18px;max-width:520px;line-height:1.5;">Selecciona una nota con <b style="color:#9fb0c4;">guion</b> en el RUNDOWN. El texto aparecerá aquí, listo para leer al aire.</div>
+      </div>
+    </sc-if>
+
+    <!-- chrome superior -->
+    <div style="position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:12px;padding:14px 18px;pointer-events:none;">
+      <div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.5);border:1px solid #232c39;border-radius:9px;padding:6px 11px;">
+        <span style="width:9px;height:9px;border-radius:50%;background:{{ liveDot }};box-shadow:0 0 8px {{ liveGlow }};"></span>
+        <span style="font-family:'Saira Condensed';font-weight:800;font-size:14px;letter-spacing:.14em;color:#cfe0f5;">INFO 7 · PROMPTER</span>
+      </div>
+      <sc-if value="{{ hasTitle }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(0,0,0,.5);border:1px solid #232c39;border-radius:9px;padding:6px 13px;font-family:'Saira Condensed';font-weight:700;font-size:15px;letter-spacing:.04em;color:#9fd0f5;text-transform:uppercase;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ title }}</div>
+      </sc-if>
+    </div>
+
+    <!-- barra de control (ocultable) -->
+    <sc-if value="{{ showUI }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;left:50%;bottom:22px;transform:translateX(-50%);display:flex;align-items:center;gap:7px;padding:9px 12px;background:rgba(10,14,20,.9);border:1px solid #2a3340;border-radius:14px;box-shadow:0 16px 44px rgba(0,0,0,.6);backdrop-filter:blur(8px);">
+        <button onClick="{{ reset }}" title="Volver al inicio" style="{{ btn }}">⟲</button>
+        <button onClick="{{ slower }}" title="Más lento" style="{{ btn }}">◀◀</button>
+        <button onClick="{{ toggle }}" title="Reproducir / pausar" style="{{ btnPlay }}">{{ playIcon }}</button>
+        <button onClick="{{ faster }}" title="Más rápido" style="{{ btn }}">▶▶</button>
+        <div style="min-width:74px;text-align:center;font-family:'Saira Condensed';font-weight:700;font-size:13px;color:#9fb0c4;line-height:1.1;">VEL<br><span style="color:#fff;font-size:17px;">{{ speedVal }}</span></div>
+        <div style="width:1px;height:32px;background:#2a3340;"></div>
+        <button onClick="{{ smaller }}" title="Texto más chico" style="{{ btn }}">A−</button>
+        <div style="min-width:58px;text-align:center;font-family:'Saira Condensed';font-weight:700;font-size:13px;color:#9fb0c4;line-height:1.1;">PT<br><span style="color:#fff;font-size:17px;">{{ fontVal }}</span></div>
+        <button onClick="{{ bigger }}" title="Texto más grande" style="{{ btn }}">A+</button>
+        <div style="width:1px;height:32px;background:#2a3340;"></div>
+        <button onClick="{{ mirrorT }}" title="Espejo (vidrio del teleprompter)" style="{{ mirrorBtn }}">⇋</button>
+        <button onClick="{{ markerT }}" title="Marcador de lectura" style="{{ markerBtn }}">▤</button>
+        <button onClick="{{ uiT }}" title="Ocultar controles (tecla H)" style="{{ btn }}">✕</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ hideUI }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ uiT }}" title="Mostrar controles (tecla H)" style="position:absolute;right:16px;bottom:16px;width:40px;height:40px;border-radius:11px;border:1px solid #2a3340;background:rgba(10,14,20,.7);color:#7e8ea3;font-size:16px;cursor:pointer;">⛭</button>
+    </sc-if>
+  </div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this._id = 'p'+Math.random().toString(36).slice(2,8);
+    this._base = 0; this._playStart = Date.now(); this._cur = 0; this._lastTx = 0;
+    this.state = {
+      text:'', title:'', fontSize:62, speed:48, playing:false, mirror:false, marker:true, showUI:true, live:false
+    };
+  }
+
+  // ---------- sincronización ----------
+  // El estado de scroll/velocidad se comparte SOLO local (misma máquina): localStorage +
+  // BroadcastChannel, para no pisar en Firebase el guion que manda el RUNDOWN.
+  pubState(){
+    const s=this.state;
+    const msg={ type:'state', sender:this._id,
+      text:s.text, title:s.title, fontSize:s.fontSize, speed:s.speed,
+      playing:s.playing, mirror:s.mirror, marker:s.marker, base:this._cur, playStart:this._playStart };
+    try{ localStorage.setItem('info7_prompter', JSON.stringify(msg)); }catch(e){}
+    try{ if(this.chan) this.chan.postMessage(msg); }catch(e){}
+  }
+  applyState(d){
+    if(!d) return;
+    this._base = (typeof d.base==='number')? d.base : this._base;
+    this._playStart = d.playStart || Date.now();
+    this.setState({ text:d.text||'', title:d.title||'', fontSize:d.fontSize||this.state.fontSize,
+      speed:d.speed||this.state.speed, playing:!!d.playing, mirror:!!d.mirror, marker:d.marker!==false });
+  }
+  onMsg(d){
+    if(!d || d.sender===this._id) return;
+    if(d.type==='hello'){ this.pubState(); return; }
+    if(d.type==='text'){ this._lastTx=Date.now(); if(!d.keep){ this._base=0; this._playStart=Date.now(); } this.setState(Object.assign({text:d.text||'', title:d.title||'', live:!!d.live}, d.keep?{}:{playing:false}), ()=>this.pubState()); return; }
+    if(d.type==='cmd'){ this.runCmd(d.cmd); return; }
+    if(d.type==='state'){ this.applyState(d); }
+  }
+  broadcastHello(){ const m={type:'hello',sender:this._id};
+    try{ if(this.chan) this.chan.postMessage(m); }catch(e){}
+    try{ if(window.INFO7_FIREBASE_PROMPTER) window.INFO7_FIREBASE_PROMPTER.write(m); }catch(e){} }
+
+  // ---------- comandos ----------
+  rebase(){ this._base=this._cur; this._playStart=Date.now(); }
+  runCmd(c){
+    if(c==='toggle') return this.toggle();
+    if(c==='play'){ if(!this.state.playing){ this.rebase(); this.setState({playing:true},()=>this.pubState()); } return; }
+    if(c==='pause'){ if(this.state.playing){ this.rebase(); this.setState({playing:false},()=>this.pubState()); } return; }
+    if(c==='spd+') return this.faster();
+    if(c==='spd-') return this.slower();
+    if(c==='font+') return this.bigger();
+    if(c==='font-') return this.smaller();
+    if(c==='mirror') return this.mirrorT();
+    if(c==='marker') return this.markerT();
+    if(c==='reset') return this.reset();
+  }
+  toggle(){ this.rebase(); this.setState(s=>({playing:!s.playing}), ()=>this.pubState()); }
+  slower(){ this.rebase(); this.setState(s=>({speed:Math.max(8, s.speed-8)}), ()=>this.pubState()); }
+  faster(){ this.rebase(); this.setState(s=>({speed:Math.min(260, s.speed+8)}), ()=>this.pubState()); }
+  smaller(){ this.setState(s=>({fontSize:Math.max(28, s.fontSize-4)}), ()=>this.pubState()); }
+  bigger(){ this.setState(s=>({fontSize:Math.min(140, s.fontSize+4)}), ()=>this.pubState()); }
+  mirrorT(){ this.setState(s=>({mirror:!s.mirror}), ()=>this.pubState()); }
+  markerT(){ this.setState(s=>({marker:!s.marker}), ()=>this.pubState()); }
+  uiT(){ this.setState(s=>({showUI:!s.showUI})); }
+  reset(){ this._base=0; this._playStart=Date.now(); this.setState({}, ()=>this.pubState()); }
+
+  // ---------- scroll manual ----------
+  onWheel(e){ e.preventDefault(); this._base = Math.max(0, this._cur + e.deltaY); this._playStart=Date.now(); this._scheduleTxPub(); }
+  onDown(e){
+    if(e.target && e.target.closest && e.target.closest('button')) return;
+    const startY=e.clientY, base0=this._cur; this._playStart=Date.now();
+    const mv=(ev)=>{ this._base=Math.max(0, base0 - (ev.clientY-startY)); this._playStart=Date.now(); };
+    const up=()=>{ window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); this.pubState(); };
+    window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
+  }
+  _scheduleTxPub(){ if(this._txT) return; this._txT=setTimeout(()=>{ this._txT=null; this.pubState(); }, 180); }
+
+  // ---------- ciclo de vida ----------
+  componentDidMount(){
+    try{ const raw=localStorage.getItem('info7_prompter'); if(raw) this.applyState(JSON.parse(raw)); }catch(e){}
+    try{ this.chan=new BroadcastChannel('info7_prompter'); this.chan.onmessage=(e)=>this.onMsg(e.data); }catch(e){ this.chan=null; }
+    this._sub=()=>{ if(this._subbed||!window.INFO7_FIREBASE_PROMPTER) return; this._subbed=true; try{ window.INFO7_FIREBASE_PROMPTER.subscribe((d)=>this.onMsg(d)); }catch(e){} };
+    this._sub(); window.addEventListener('info7-fb-ready', this._fb=()=>this._sub());
+    this.broadcastHello();
+    this._key=(e)=>{ const k=e.key.toLowerCase();
+      if(k==='h'){ this.uiT(); }
+      else if(e.code==='Space'){ e.preventDefault(); this.toggle(); }
+      else if(k==='arrowup'){ this.slower(); } else if(k==='arrowdown'){ this.faster(); }
+      else if(k==='m'){ this.mirrorT(); } else if(k==='r'){ this.reset(); } };
+    window.addEventListener('keydown', this._key);
+    const frame=()=>{
+      const view=document.getElementById('pView'), tr=document.getElementById('pMirror');
+      if(view&&tr){
+        let s=this._base;
+        if(this.state.playing) s=this._base + (Date.now()-this._playStart)/1000*this.state.speed;
+        const inner=document.getElementById('pTrack');
+        const max=inner? Math.max(0, inner.scrollHeight - view.clientHeight*0.5) : s;
+        if(s>=max){ s=max; if(this.state.playing){ this._base=max; this._playStart=Date.now(); this.setState({playing:false}); } }
+        if(s<0) s=0;
+        this._cur=s;
+        tr.style.transform=(this.state.mirror?'scaleX(-1) ':'')+'translateY('+(-s)+'px)';
+        tr.style.transformOrigin='center top';
+      }
+    };
+    // Ticker de 30fps (setInterval) — fiable aunque requestAnimationFrame esté estrangulado;
+    // rAF adicional para suavizar el pintado cuando la pestaña está activa.
+    this._tick=setInterval(frame, 33);
+    const raf=()=>{ frame(); this._raf=requestAnimationFrame(raf); };
+    this._raf=requestAnimationFrame(raf);
+  }
+  componentWillUnmount(){ clearInterval(this._tick); cancelAnimationFrame(this._raf); if(this.chan)this.chan.close(); window.removeEventListener('keydown',this._key); if(this._fb) window.removeEventListener('info7-fb-ready',this._fb); }
+
+  renderVals(){
+    const s=this.state;
+    const btn={width:'40px',height:'40px',borderRadius:'10px',border:'1px solid #2a3340',background:'#11161d',color:'#dce5f0',fontSize:'15px',fontWeight:'700',cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center'};
+    const btnPlay={...btn,width:'48px',height:'44px',background:s.playing?'linear-gradient(180deg,#e0241a,#b01510)':'linear-gradient(180deg,#f47b20,#d4640f)',border:'none',color:'#fff',fontSize:'17px'};
+    const on={...btn,background:'#241608',border:'1px solid #5a4218',color:'#ffd9a8'};
+    return {
+      text:s.text, hasTitle:!!(s.title&&s.title.trim()), title:s.title, empty:!(s.text&&s.text.trim()),
+      fontPx:s.fontSize+'px', fontVal:s.fontSize, speedVal:s.speed,
+      marker:s.marker, mirror:s.mirror, showUI:s.showUI, hideUI:!s.showUI,
+      playing:s.playing, playIcon:s.playing?'❚❚':'▶',
+      liveDot:s.live?'#ff3b2f':'#3a4658', liveGlow:s.live?'rgba(255,59,47,.8)':'rgba(0,0,0,0)',
+      btn, btnPlay, mirrorBtn:s.mirror?on:btn, markerBtn:s.marker?on:btn,
+      toggle:()=>this.toggle(), slower:()=>this.slower(), faster:()=>this.faster(),
+      smaller:()=>this.smaller(), bigger:()=>this.bigger(), mirrorT:()=>this.mirrorT(),
+      markerT:()=>this.markerT(), uiT:()=>this.uiT(), reset:()=>this.reset(),
+      onWheel:(e)=>this.onWheel(e), onDown:(e)=>this.onDown(e),
+    };
+  }
+}
+</script>
+</body>
+</html>
