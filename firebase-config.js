@@ -14,7 +14,7 @@ window.INFO7_FIREBASE_CONFIG = {
   authDomain:        "infographics-62747.firebaseapp.com",
   databaseURL:       "https://infographics-62747-default-rtdb.firebaseio.com",
   projectId:         "infographics-62747",
-  storageBucket:     "infographics-62747.firebasestorage.app",
+  storageBucket:      "infographics-62747.firebasestorage.app",
   messagingSenderId: "748846969922",
   appId:             "1:748846969922:web:b5a95f4086891c09a729db",
 
