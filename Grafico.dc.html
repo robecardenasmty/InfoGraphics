@@ -63,7 +63,7 @@
 
     <div style="{{ ltStyle }}">
       <sc-if value="{{ show.logo }}" hint-placeholder-val="{{ true }}">
-        <img src="assets/info7-logo.png" alt="INFO 7" style="{{ st.logo }}" onAnimationEnd="{{ animEnd.logo }}" />
+        <img src="assets/ih-logo.png" alt="IH SYSTEM" style="{{ st.logo }}" onAnimationEnd="{{ animEnd.logo }}" />
       </sc-if>
 
       <div style="{{ colWrap }}">
@@ -117,10 +117,10 @@ class Component extends DCLogic {
     this.STAG_IN = {logo:0, topbar:90, cejilla:150, barraAzul:240, barraBlanca:330, ticker:120, back:0};
     this.STAG_OUT = {ticker:0, barraBlanca:80, barraAzul:160, cejilla:230, topbar:300, logo:360, back:0};
     this.CATS = {
-      breaking:    {tag:'', badge:false,  colors:{cejilla:'#ba0000', barra:'#003399', acento:'#29abe2', ink:'#0a1f44'}, back:['#10213f','#06101f']},
-      deportes:    {tag:'DEPORTES', badge:true,  colors:{cejilla:'#1f9d34', barra:'#0e5d22', acento:'#eaff00', ink:'#0b3d1f'}, back:['#0e3d1f','#05160c']},
-      espectaculos:{tag:'ESPECTÁCULOS', badge:true, colors:{cejilla:'#c01f7a', barra:'#3a1150', acento:'#ff4fd8', ink:'#2a0b3d'}, back:['#2c0b40','#120417']},
-      generico:    {tag:'', badge:false, colors:{cejilla:'#1b1b1b', barra:'#2c3340', acento:'#f47b20', ink:'#141821'}, back:['#1b2230','#0a0e15']},
+      breaking:    {tag:'', badge:false,  colors:{cejilla:'#161616', barra:'#1f1f1f', acento:'#C4DD00', ink:'#141414'}, back:['#1c1c1c','#000000']},
+      deportes:    {tag:'DEPORTES', badge:true,  colors:{cejilla:'#161616', barra:'#1f1f1f', acento:'#9DB805', ink:'#141414'}, back:['#15180b','#000000']},
+      espectaculos:{tag:'ESPECTÁCULOS', badge:true, colors:{cejilla:'#161616', barra:'#1f1f1f', acento:'#97B356', ink:'#141414'}, back:['#161a10','#000000']},
+      generico:    {tag:'', badge:false, colors:{cejilla:'#202020', barra:'#2a2a2a', acento:'#C4DD00', ink:'#141414'}, back:['#1c1c1c','#000000']},
     };
     const t=(props&&props.tickers)||{}; const hidden={};
     if(props&&props.animate){ Object.keys(t).forEach(k=>{ const c=t[k]||{}; if((c.k||0)>0 && (c.dir||'in')==='in') hidden[k]=true; }); }
@@ -150,7 +150,7 @@ class Component extends DCLogic {
   demo(){
     return { mode:'lower', category:'breaking',
       show:{logo:true,topbar:true,envivo:true,cejilla:true,barraAzul:true,barraBlanca:true,ticker:false},
-      txt:{cejilla:'ÚLTIMA HORA',envivoLabel:'EN VIVO',ubicacion:'MONTERREY, N.L.',hora:'15:59',nombre:'REPORTERO INFO 7',cargo:'DESDE LA ZONA',titular:'Incendio moviliza a cuerpos de auxilio en zona comercial',segunda:'Autoridades piden evitar la zona',tickerLabel:'EN DESARROLLO',ticker:'Cuerpos de emergencia trabajan en el lugar · Más información en desarrollo',backTitle:'EL TEMA DEL DÍA',backKicker:'INFO 7 PRESENTA'},
+      txt:{cejilla:'ÚLTIMA HORA',envivoLabel:'EN VIVO',ubicacion:'MONTERREY, N.L.',hora:'15:59',nombre:'REPORTERO IH SYSTEM',cargo:'DESDE LA ZONA',titular:'Incendio moviliza a cuerpos de auxilio en zona comercial',segunda:'Autoridades piden evitar la zona',tickerLabel:'EN DESARROLLO',ticker:'Cuerpos de emergencia trabajan en el lugar · Más información en desarrollo',backTitle:'EL TEMA DEL DÍA',backKicker:'IH SYSTEM PRESENTA'},
       anim:{logo:{in:'scale',out:'scale'},topbar:{in:'right',out:'right'},cejilla:{in:'wipeR',out:'wipeR'},barraAzul:{in:'expand',out:'expand'},barraBlanca:{in:'rise',out:'rise'},ticker:{in:'up',out:'up'},back:{in:'fade',out:'fade'}},
       speed:600, tickerSpeed:140, bgMode:'transparente', chromaGreen:'#00b140', chromaBlue:'#1f60c4', shadows:false };
   }
@@ -201,7 +201,7 @@ class Component extends DCLogic {
     const colWrap={display:'flex',flexDirection:'column',alignItems:'flex-start',gap:'7px',filter: shadows?'drop-shadow(0 18px 34px rgba(0,0,0,.36))':'none'};
 
     const base = {
-      logo:{width:'176px',height:'176px',flex:'none',alignSelf:'flex-end',filter: shadows?'drop-shadow(0 14px 26px rgba(0,0,0,.45))':'none'},
+      logo:{width:'176px',height:'176px',objectFit:'contain',flex:'none',alignSelf:'flex-end',filter: shadows?'drop-shadow(0 14px 26px rgba(0,0,0,.45))':'none'},
       topbar:{position:'absolute',top:'40px',right:'40px',display:'flex',alignItems:'center',gap:'16px',height:'52px',padding:'0 18px',background:'linear-gradient(180deg,var(--c-ink),var(--c-ink-d))',borderRadius:'6px',borderBottom:'3px solid var(--c-ac)',boxShadow: shadows?'0 12px 28px rgba(0,0,0,.4)':'none'},
       cejilla:{display:'inline-flex',alignItems:'center',gap:'13px',height:'56px',padding:'0 24px 0 20px',background:'linear-gradient(180deg,var(--c-cej),var(--c-cej-d))',borderLeft:'7px solid var(--c-ac)',borderRadius:'0 5px 0 0',boxShadow:'inset 0 1px 0 rgba(255,255,255,.18)'},
       barraAzul:{display:'inline-flex',alignItems:'center',gap:'16px',height:'66px',padding:'0 26px 0 20px',background:'linear-gradient(180deg,var(--c-bar),var(--c-bar-d))',borderBottom:'3px solid var(--c-ac)',boxShadow:'inset 0 1px 0 rgba(255,255,255,.14)'},
@@ -218,12 +218,12 @@ class Component extends DCLogic {
     const backKickerBar={width:'64px',height:'8px',background:'var(--c-ac)',display:'inline-block'};
     const backKickerTxt={fontFamily:"'Saira Condensed'",fontWeight:700,fontSize:'34px',letterSpacing:'.12em',color:'var(--c-ac)',textTransform:'uppercase'};
     const backTitleSty={fontFamily:"'Saira Condensed'",fontWeight:800,fontSize:'132px',lineHeight:'.98',letterSpacing:'.01em',color:'#fff',textTransform:'uppercase',textWrap:'balance'};
-    const backRule={width:'220px',height:'8px',background:'var(--c-cej)',marginTop:'34px'};
+    const backRule={width:'220px',height:'8px',background:'var(--c-ac)',marginTop:'34px'};
 
     const envivoBadge={display:'inline-flex',alignItems:'center',gap:'8px',whiteSpace:'nowrap',background:'linear-gradient(180deg,var(--c-cej),var(--c-cej-d))',color:'#fff',fontFamily:"'Saira Condensed'",fontWeight:700,fontSize:'23px',letterSpacing:'.07em',padding:'4px 13px',borderRadius:'4px'};
-    const envivoDot={width:'10px',height:'10px',borderRadius:'50%',background:'#fff',animation:'gPulse 1.1s ease-in-out infinite'};
+    const envivoDot={width:'10px',height:'10px',borderRadius:'50%',background:'var(--c-ac)',animation:'gPulse 1.1s ease-in-out infinite'};
     const tickerLabelSty={flex:'none',display:'flex',alignItems:'center',padding:'0 22px',background:'linear-gradient(180deg,var(--c-cej),var(--c-cej-d))',fontFamily:"'Saira Condensed'",fontWeight:800,fontSize:'28px',letterSpacing:'.06em',color:'#fff',borderRight:'4px solid var(--c-ac)',whiteSpace:'nowrap'};
-    const catBadgeSty={fontFamily:"'Saira Condensed'",fontWeight:800,fontSize:'24px',letterSpacing:'.08em',color:'var(--c-cej)',background:'#fff',padding:'3px 11px',borderRadius:'4px',lineHeight:'1'};
+    const catBadgeSty={fontFamily:"'Saira Condensed'",fontWeight:800,fontSize:'24px',letterSpacing:'.08em',color:'#141414',background:'var(--c-ac)',padding:'3px 11px',borderRadius:'4px',lineHeight:'1'};
 
     return {
       rootStyle, bgStyle, st, animEnd, ltStyle, colWrap, themeVars,

@@ -373,6 +373,9 @@
                 </div>
               </div>
 
+              <!-- PREVISUALIZACIÓN del clip -->
+              <video src="{{ editRow.vUrl }}" controls="{{ true }}" muted="{{ true }}" playsinline="{{ true }}" preload="metadata" style="width:100%;border-radius:10px;background:#000;display:block;max-height:200px;"></video>
+
               <!-- modo -->
               <div>
                 <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">¿Cómo se usa el video?</label>
@@ -606,13 +609,15 @@ class Component extends DCLogic {
     if(file.size > 2*1024*1024*1024){ this.setState({syncMsg:'El video supera 2 GB.'}); return; }
     if(!window.INFO7_FIREBASE_STORAGE || !window.INFO7_FIREBASE_STORAGE.ready()){ this.setState({syncMsg:'Storage no conectado: revisa firebase-config.js (Blaze + storageBucket).'}); return; }
     let durSec=0; try{ durSec=await this.vDuration(file); }catch(e){}
-    this.vSetVideo(id, {status:'uploading', progress:0, name:file.name, sizeMB:Math.round(file.size/1048576), durSec});
+    const sizeMB=Math.round(file.size/1048576);
+    // Progreso TRANSITORIO (no persiste en cada %, no satura Firebase).
+    this.setState({vUp:{id, pct:0, name:file.name, sizeMB, durSec}});
     const path='info7-videos/'+id+'_'+Date.now()+'_'+file.name.replace(/[^\w.\-]+/g,'_');
     try{
-      const res=await window.INFO7_FIREBASE_STORAGE.upload(file, path, (pct)=>this.vSetVideo(id,{progress:pct}));
-      this.vSetVideo(id, {status:'ready', url:res.url, path:res.path});
-      this.setState({syncMsg:'✅ Video listo: '+file.name});
-    }catch(e){ this.vSetVideo(id, {status:'error'}); this.setState({syncMsg:'Error al subir: '+(e&&e.message||e)}); }
+      const res=await window.INFO7_FIREBASE_STORAGE.upload(file, path, (pct)=>{ const u=this.state.vUp; if(u&&u.id===id) this.setState({vUp:{...u, pct}}); });
+      this.vSetVideo(id, {status:'ready', url:res.url, path:res.path, name:file.name, sizeMB, durSec}); // se guarda UNA sola vez
+      this.setState({vUp:null, syncMsg:'✅ Video listo: '+file.name});
+    }catch(e){ this.setState({vUp:null, syncMsg:'Error al subir: '+(e&&e.message||e)}); }
   }
   vDuration(file){ return new Promise((resolve,reject)=>{ const v=document.createElement('video'); v.preload='metadata'; v.onloadedmetadata=()=>{ URL.revokeObjectURL(v.src); resolve(Math.round(v.duration)||0); }; v.onerror=()=>reject(); v.src=URL.createObjectURL(file); }); }
   vRemove(id){ const n=this.vNote(id); if(n&&n.path&&window.INFO7_FIREBASE_STORAGE){ try{ window.INFO7_FIREBASE_STORAGE.remove(n.path); }catch(e){} } this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r) delete r.video; }); }
@@ -830,7 +835,7 @@ class Component extends DCLogic {
         durText:er.durText!=null?er.durText:this.fmtDur(er.durSec||0),
         responsable:er.responsable||'', fuente:er.fuente||'', gancho:er.gancho||'', gcKind:er.gcKind||'titular',
         gcOpts:this.GCOPTS, fmtChips, statChips,
-        previewKicker:(({localizacion:'EN VIVO',clima:'CLIMA',datos:'DATOS',deportes:'DEPORTES',espectaculos:'ESPECTÁCULOS',nombre:'EN VIVO'})[er.gcKind]||'INFO 7'),
+        previewKicker:(({localizacion:'EN VIVO',clima:'CLIMA',datos:'DATOS',deportes:'DEPORTES',espectaculos:'ESPECTÁCULOS',nombre:'EN VIVO'})[er.gcKind]||'IH SYSTEM'),
         previewContenido:(er.contenido||'TITULAR DE LA NOTA'),
         previewSegunda:(er.segunda||''), previewHasSegunda:!!(er.segunda&&er.segunda.trim()),
         onContenido:(e)=>{ this.rdField(er.id,'contenido',e.target.value); this.pRepub(er.id); },
@@ -846,10 +851,10 @@ class Component extends DCLogic {
       // ---- VIDEO ----
       const vid=er.video||null;
       const vMode=(vid&&vid.mode)||'apoyo';
-      const vStatus=(vid&&vid.status)||(vid&&vid.url?'ready':'empty');
-      editRow.vHasVideo=!!(vid&&vid.url);
-      editRow.vUploading= vStatus==='uploading';
-      editRow.vProgress=(vid&&vid.progress)||0;
+      const up = st.vUp && st.vUp.id===er.id ? st.vUp : null;
+      editRow.vHasVideo=!!(vid&&vid.url) && !up;
+      editRow.vUploading= !!up;
+      editRow.vProgress= up? up.pct : 0;
       editRow.vName=(vid&&vid.name)||'';
       editRow.vSizeMB=(vid&&vid.sizeMB)||0;
       editRow.vDurStr= vid&&vid.durSec? this.fmtDur(vid.durSec):'';

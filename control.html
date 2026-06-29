@@ -216,6 +216,7 @@
                             <div style="flex:1;min-width:0;"><div style="font-family:'Saira Condensed';font-weight:700;font-size:13px;color:#5fe39a;word-break:break-all;">{{ r.vName }}</div><div style="font-size:10.5px;color:#7e8ea3;">{{ r.vDurStr }} · {{ r.vSizeMB }} MB</div></div>
                             <button onClick="{{ r.onVideoRemove }}" title="Quitar" style="flex:none;width:26px;height:26px;border-radius:6px;border:1px solid #5a2420;background:#1f0d0c;color:#ff9a90;cursor:pointer;font-size:11px;">✕</button>
                           </div>
+                          <video src="{{ r.vUrl }}" controls="{{ true }}" muted="{{ true }}" playsinline="{{ true }}" preload="metadata" style="width:100%;border-radius:8px;background:#000;display:block;max-height:170px;"></video>
                           <div style="display:flex;gap:7px;">
                             <div onClick="{{ r.onModeApoyo }}" style="{{ r.vApoyoStyle }}">APOYO · mudo</div>
                             <div onClick="{{ r.onModeNota }}" style="{{ r.vNotaStyle }}">NOTA · audio</div>
@@ -411,16 +412,16 @@ class Component extends DCLogic {
     this.ANIMOPTS=[{v:'fade',l:'Fundido'},{v:'left',l:'Izq.'},{v:'right',l:'Der.'},{v:'up',l:'Arriba'},{v:'scale',l:'Escala'},{v:'wipeR',l:'Cortina'},{v:'expand',l:'Expandir'},{v:'rise',l:'Rebote'},{v:'zoom',l:'Zoom'}];
     this.TRANS={desliza:{all:'left',sp:600,l:'Deslizar'},ascenso:{all:'up',sp:600,l:'Ascenso'},cortina:{all:'wipeR',sp:650,l:'Cortina'},expansion:{all:'expand',sp:600,l:'Expansión'},fundido:{all:'fade',sp:700,l:'Fundido'},zoom:{all:'zoom',sp:600,l:'Zoom'},rebote:{all:'rise',sp:700,l:'Rebote'},urgente:{all:'scale',sp:340,l:'Urgente'},lateral:{all:'right',sp:560,l:'Lateral'}};
     this.CATS={
-      breaking:{label:'Breaking', colors:{cejilla:'#ba0000',barra:'#003399',acento:'#29abe2',ink:'#0a1f44'}},
-      deportes:{label:'Deportes', colors:{cejilla:'#1f9d34',barra:'#0e5d22',acento:'#eaff00',ink:'#0b3d1f'}},
-      espectaculos:{label:'Espectáculos', colors:{cejilla:'#c01f7a',barra:'#3a1150',acento:'#ff4fd8',ink:'#2a0b3d'}},
-      generico:{label:'Genérico', colors:{cejilla:'#1b1b1b',barra:'#2c3340',acento:'#f47b20',ink:'#141821'}},
+      breaking:{label:'Breaking', colors:{cejilla:'#161616',barra:'#1f1f1f',acento:'#C4DD00',ink:'#141414'}},
+      deportes:{label:'Deportes', colors:{cejilla:'#161616',barra:'#1f1f1f',acento:'#9DB805',ink:'#141414'}},
+      espectaculos:{label:'Espectáculos', colors:{cejilla:'#161616',barra:'#1f1f1f',acento:'#97B356',ink:'#141414'}},
+      generico:{label:'Genérico', colors:{cejilla:'#202020',barra:'#2a2a2a',acento:'#C4DD00',ink:'#141414'}},
     };
     this.SAMPLES={
-      breaking:{cejilla:'ÚLTIMA HORA',ubicacion:'MONTERREY, N.L.',nombre:'REPORTERO INFO 7',cargo:'DESDE LA ZONA',titular:'Incendio moviliza a cuerpos de auxilio en zona comercial',segunda:'Autoridades piden evitar la zona',tickerLabel:'EN DESARROLLO',ticker:'Cuerpos de emergencia trabajan en el lugar · Se recomienda no acercarse · Más información en desarrollo',backKicker:'INFO 7 · ÚLTIMA HORA',backTitle:'ALERTA EN LA CIUDAD'},
-      deportes:{cejilla:'DEPORTES',ubicacion:'ESTADIO BBVA',nombre:'ANÁLISIS POSPARTIDO',cargo:'INFO 7 DEPORTES',titular:'Triunfo de local en una noche de altísima tensión',segunda:'El equipo se acerca a la cima',tickerLabel:'RESULTADOS',ticker:'Marcador final 2-1 · El campeón se define la próxima jornada · Toda la cobertura en INFO 7',backKicker:'INFO 7 DEPORTES',backTitle:'LA JUGADA DE LA NOCHE'},
-      espectaculos:{cejilla:'ESPECTÁCULOS',ubicacion:'ALFOMBRA ROJA',nombre:'COBERTURA ESPECIAL',cargo:'INFO 7 SHOW',titular:'Las estrellas brillan en una noche de premios inolvidable',segunda:'Los grandes ganadores de la velada',tickerLabel:'AL MOMENTO',ticker:'Mira los mejores looks de la alfombra roja · Reacciones y entrevistas exclusivas en INFO 7 Show',backKicker:'INFO 7 ESPECTÁCULOS',backTitle:'NOCHE DE ESTRELLAS'},
-      generico:{cejilla:'INFORMACIÓN',ubicacion:'CIUDAD',nombre:'INFO 7',cargo:'EN VIVO',titular:'Escribe aquí tu titular principal',segunda:'Segunda línea opcional',tickerLabel:'INFO 7',ticker:'Texto del ticker · Edítalo en la pestaña Textos',backKicker:'INFO 7',backTitle:'TÍTULO PRINCIPAL'},
+      breaking:{cejilla:'ÚLTIMA HORA',ubicacion:'MONTERREY, N.L.',nombre:'REPORTERO IH SYSTEM',cargo:'DESDE LA ZONA',titular:'Incendio moviliza a cuerpos de auxilio en zona comercial',segunda:'Autoridades piden evitar la zona',tickerLabel:'EN DESARROLLO',ticker:'Cuerpos de emergencia trabajan en el lugar · Se recomienda no acercarse · Más información en desarrollo',backKicker:'IH SYSTEM · ÚLTIMA HORA',backTitle:'ALERTA EN LA CIUDAD'},
+      deportes:{cejilla:'DEPORTES',ubicacion:'ESTADIO BBVA',nombre:'ANÁLISIS POSPARTIDO',cargo:'IH SYSTEM DEPORTES',titular:'Triunfo de local en una noche de altísima tensión',segunda:'El equipo se acerca a la cima',tickerLabel:'RESULTADOS',ticker:'Marcador final 2-1 · El campeón se define la próxima jornada · Toda la cobertura en IH SYSTEM',backKicker:'IH SYSTEM DEPORTES',backTitle:'LA JUGADA DE LA NOCHE'},
+      espectaculos:{cejilla:'ESPECTÁCULOS',ubicacion:'ALFOMBRA ROJA',nombre:'COBERTURA ESPECIAL',cargo:'IH SYSTEM SHOW',titular:'Las estrellas brillan en una noche de premios inolvidable',segunda:'Los grandes ganadores de la velada',tickerLabel:'AL MOMENTO',ticker:'Mira los mejores looks de la alfombra roja · Reacciones y entrevistas exclusivas en IH SYSTEM Show',backKicker:'IH SYSTEM ESPECTÁCULOS',backTitle:'NOCHE DE ESTRELLAS'},
+      generico:{cejilla:'INFORMACIÓN',ubicacion:'CIUDAD',nombre:'IH SYSTEM',cargo:'EN VIVO',titular:'Escribe aquí tu titular principal',segunda:'Segunda línea opcional',tickerLabel:'IH SYSTEM',ticker:'Texto del ticker · Edítalo en la pestaña Textos',backKicker:'IH SYSTEM',backTitle:'TÍTULO PRINCIPAL'},
     };
     // FORMATO codes → chip color
     this.FMT={
@@ -514,11 +515,11 @@ class Component extends DCLogic {
     const map=this.GCMAP[row.gcKind]||this.GCMAP.titular;
     const s=this.mkState(map.cat); s.mode=map.mode;
     const titular=row.contenido||s.txt.titular;
-    if(map.mode==='back'){ s.txt.backTitle=titular; s.txt.backKicker='INFO 7'; }
+    if(map.mode==='back'){ s.txt.backTitle=titular; s.txt.backKicker='IH SYSTEM'; }
     else {
       s.txt.titular=titular;
       s.txt.segunda=row.segunda||'';
-      if(row.gcKind==='nombre'){ s.txt.nombre=(row.responsable||'INFO 7').toUpperCase(); s.txt.cargo='EN VIVO'; }
+      if(row.gcKind==='nombre'){ s.txt.nombre=(row.responsable||'IH SYSTEM').toUpperCase(); s.txt.cargo='EN VIVO'; }
       if(row.gcKind==='localizacion'){ s.txt.cejilla='EN VIVO'; s.show.envivo=true; }
       if(row.gcKind==='clima'){ s.txt.cejilla='CLIMA'; }
       if(row.gcKind==='datos'){ s.txt.cejilla='DATOS'; }
@@ -663,13 +664,14 @@ class Component extends DCLogic {
     if(file.size > 2*1024*1024*1024){ this.setState({syncMsg:'El video supera 2 GB.'}); return; }
     if(!window.INFO7_FIREBASE_STORAGE || !window.INFO7_FIREBASE_STORAGE.ready()){ this.setState({syncMsg:'Storage no conectado: revisa firebase-config.js (Blaze + storageBucket).'}); return; }
     let durSec=0; try{ durSec=await this.vDuration(file); }catch(e){}
-    this.vSetVideo(id, {status:'uploading', progress:0, name:file.name, sizeMB:Math.round(file.size/1048576), durSec});
+    const sizeMB=Math.round(file.size/1048576);
+    this.setState({vUp:{id, pct:0, name:file.name, sizeMB, durSec}});
     const path='info7-videos/'+id+'_'+Date.now()+'_'+file.name.replace(/[^\w.\-]+/g,'_');
     try{
-      const res=await window.INFO7_FIREBASE_STORAGE.upload(file, path, (pct)=>this.vSetVideo(id,{progress:pct}));
-      this.vSetVideo(id, {status:'ready', url:res.url, path:res.path});
-      this.setState({syncMsg:'✅ Video listo: '+file.name});
-    }catch(e){ this.vSetVideo(id, {status:'error'}); this.setState({syncMsg:'Error al subir: '+(e&&e.message||e)}); }
+      const res=await window.INFO7_FIREBASE_STORAGE.upload(file, path, (pct)=>{ const u=this.state.vUp; if(u&&u.id===id) this.setState({vUp:{...u, pct}}); });
+      this.vSetVideo(id, {status:'ready', url:res.url, path:res.path, name:file.name, sizeMB, durSec});
+      this.setState({vUp:null, syncMsg:'✅ Video listo: '+file.name});
+    }catch(e){ this.setState({vUp:null, syncMsg:'Error al subir: '+(e&&e.message||e)}); }
   }
   vDuration(file){ return new Promise((resolve,reject)=>{ const v=document.createElement('video'); v.preload='metadata'; v.onloadedmetadata=()=>{ URL.revokeObjectURL(v.src); resolve(Math.round(v.duration)||0); }; v.onerror=()=>reject(); v.src=URL.createObjectURL(file); }); }
   vRemove(id){ const n=this.vNote(id); if(n&&n.path&&window.INFO7_FIREBASE_STORAGE){ try{ window.INFO7_FIREBASE_STORAGE.remove(n.path); }catch(e){} } this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r) delete r.video; }); }
@@ -686,14 +688,15 @@ class Component extends DCLogic {
   // Props de video para una fila de la escaleta (se esparcen en el objeto de la fila)
   vRow(r){
     const vid=r.video||null; const vMode=(vid&&vid.mode)||'apoyo';
-    const vStatus=(vid&&vid.status)||(vid&&vid.url?'ready':'empty');
-    const hasVideo=!!(vid&&vid.url); const uploading= vStatus==='uploading';
+    const up = this.state.vUp && this.state.vUp.id===r.id ? this.state.vUp : null;
+    const hasVideo=!!(vid&&vid.url) && !up; const uploading= !!up;
     const segBase={flex:'1',cursor:'pointer',textAlign:'center',padding:'7px 6px',borderRadius:'8px',userSelect:'none',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'13px'};
     const modeColor= vMode==='nota'? '#e0241a':'#2a6fdb';
     return {
       vHasVideo:hasVideo, vUploading:uploading, vNoVideo: !hasVideo && !uploading,
       vName:(vid&&vid.name)||'', vSizeMB:(vid&&vid.sizeMB)||0, vDurStr: vid&&vid.durSec? this.fmtDur(vid.durSec):'',
-      vProgress:(vid&&vid.progress)||0, vMode, vIsNota: vMode==='nota',
+      vUrl:(vid&&vid.url)||'',
+      vProgress: up? up.pct : 0, vMode, vIsNota: vMode==='nota',
       vBarStyle:{height:'100%',width:((vid&&vid.progress)||0)+'%',background:'linear-gradient(90deg,#2a6fdb,#5a9bf0)',transition:'width .2s'},
       vApoyoStyle:Object.assign({},segBase, vMode==='apoyo'?{background:'#2a6fdb',color:'#fff',border:'1px solid #2a6fdb'}:{background:'#0e131a',color:'#9fb0c4',border:'1px solid #2a3340'}),
       vNotaStyle:Object.assign({},segBase, vMode==='nota'?{background:'#e0241a',color:'#fff',border:'1px solid #e0241a'}:{background:'#0e131a',color:'#9fb0c4',border:'1px solid #2a3340'}),
@@ -737,7 +740,7 @@ class Component extends DCLogic {
     const setCol={}; Object.keys(p.colors).forEach(k=>{ setCol[k]=(e)=>this.upCol(k,e.target.value); });
     const bg={transparente:()=>this.setBg('transparente'),estudio:()=>this.setBg('estudio'),verde:()=>this.setBg('verde'),azul:()=>this.setBg('azul')};
     const bgBtn={}; ['transparente','estudio','verde','azul'].forEach(k=>{bgBtn[k]=this.pill(p.bgMode===k);});
-    const toggleList=[['logo','Logo INFO 7','#e7edf6'],['topbar','Barra superior','#e7edf6'],['envivo','↳ EN VIVO','#aebacb'],['cejilla','Cejilla','#e7edf6'],['barraAzul','Barra azul','#e7edf6'],['barraBlanca','Barra blanca','#e7edf6'],['ticker','Ticker','#e7edf6']].map(([k,l,c])=>{ const sw=this.sw(p.show[k]); return {label:l,color:c,on:()=>this.togShow(k),track:sw.track,knob:sw.knob}; });
+    const toggleList=[['logo','Logo IH SYSTEM','#e7edf6'],['topbar','Barra superior','#e7edf6'],['envivo','↳ EN VIVO','#aebacb'],['cejilla','Cejilla','#e7edf6'],['barraAzul','Barra azul','#e7edf6'],['barraBlanca','Barra blanca','#e7edf6'],['ticker','Ticker','#e7edf6']].map(([k,l,c])=>{ const sw=this.sw(p.show[k]); return {label:l,color:c,on:()=>this.togShow(k),track:sw.track,knob:sw.knob}; });
 
     const card={background:'linear-gradient(180deg,#141b25,#10151d)',border:'1px solid #232c39',borderRadius:'12px',padding:'14px 15px',display:'flex',flexDirection:'column',gap:'11px'};
     const cardHd={fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'14px',letterSpacing:'.08em',textTransform:'uppercase',color:'#cfe0f5',borderBottom:'1px solid #232c39',paddingBottom:'8px'};

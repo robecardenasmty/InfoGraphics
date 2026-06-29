@@ -19,7 +19,7 @@
 
 <div style="{{ rootStyle }}">
   <div ref="{{ fitRef }}" style="{{ scaleWrap }}">
-    <video ref="{{ videoRef }}" style="{{ videoStyle }}" playsinline="{{ true }}"></video>
+    <video ref="{{ videoRef }}" style="{{ videoStyle }}" playsinline="{{ true }}" onEnded="{{ onVideoEnded }}"></video>
     <sc-if value="{{ supShown }}" hint-placeholder-val="{{ false }}">
       <div style="{{ supWrap }}">
         <div style="{{ supBar }}">
@@ -94,6 +94,14 @@ class Component extends DCLogic {
       });
     }
   }
+  onVideoEnded(){
+    const vv=this.videoRef.current;
+    if(vv && vv.loop) return; // en loop no se oculta
+    // Al terminar: ocultar la capa de video para no congelar el último frame
+    // ni que el siguiente gráfico se monte sobre él.
+    if(vv){ try{ vv.pause(); }catch(e){} }
+    this.setState({vidShown:false, supShown:false});
+  }
 
   onData(p){
     if(!p||!p.program) return;
@@ -113,6 +121,7 @@ class Component extends DCLogic {
       scaleWrap:{position:'absolute',left:'50%',top:'50%',width:'1920px',height:'1080px',transform:`translate(-50%,-50%) scale(${s.scale})`,transformOrigin:'center center'},
       fitRef:this.fitRef,
       videoRef:this.videoRef,
+      onVideoEnded:()=>this.onVideoEnded(),
       videoStyle:{position:'absolute',inset:'0',width:'1920px',height:'1080px',objectFit:'cover',background:'#000',zIndex:'1',display: s.vidShown?'block':'none'},
       gfxLayer:{position:'absolute',inset:'0',width:'1920px',height:'1080px',zIndex:'2'},
       supShown:s.supShown, supName:s.supName, supRole:s.supRole,
@@ -127,17 +136,15 @@ class Component extends DCLogic {
   }
 }
 </script>
-<template id="__bundler_thumbnail" data-bg-color="#0a1322">
+<template id="__bundler_thumbnail" data-bg-color="#0a0a0a">
   <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1200" height="800" fill="#0a1322"/>
-    <rect x="250" y="300" width="200" height="200" rx="34" fill="#003399"/>
-    <rect x="250" y="440" width="200" height="60" fill="#ba0000"/>
-    <rect x="250" y="300" width="200" height="200" rx="34" fill="none" stroke="#29abe2" stroke-width="10"/>
-    <text x="350" y="375" font-family="Arial" font-weight="800" font-size="60" fill="#fff" text-anchor="middle">INFO</text>
-    <text x="350" y="478" font-family="Arial" font-weight="800" font-size="92" fill="#fff" text-anchor="middle">7</text>
-    <rect x="480" y="330" width="370" height="54" fill="#003399"/>
+    <rect width="1200" height="800" fill="#0a0a0a"/>
+    <rect x="250" y="300" width="200" height="200" rx="34" fill="#ffffff"/>
+    <text x="350" y="470" font-family="Georgia, serif" font-weight="800" font-size="118" fill="#111" text-anchor="middle">IH</text>
+    <rect x="480" y="330" width="370" height="54" fill="#1f1f1f"/>
+    <rect x="480" y="330" width="10" height="54" fill="#C4DD00"/>
     <rect x="480" y="392" width="520" height="84" fill="#fff"/>
-    <rect x="480" y="392" width="520" height="6" fill="#29abe2"/>
+    <rect x="480" y="392" width="520" height="6" fill="#C4DD00"/>
   </svg>
 </template>
 </body>
