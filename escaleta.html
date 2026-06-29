@@ -357,11 +357,85 @@
 
           <!-- ASSETS -->
           <sc-if value="{{ showAssets }}" hint-placeholder-val="{{ false }}">
-            <div style="border:1px dashed #cfd6df;border-radius:12px;padding:30px 18px;text-align:center;color:#8a96a6;">
-              <div style="font-size:28px;opacity:.5;margin-bottom:8px;">📎</div>
-              <div style="font-family:'Saira Condensed';font-weight:700;font-size:16px;color:#6b7888;margin-bottom:5px;">Assets vinculados</div>
-              <div style="font-size:12.5px;line-height:1.5;">Próximamente: enlaza aquí gráficos, VTRs y archivos de esta nota.</div>
-            </div>
+            <!-- ZONA DE VIDEO PLAYOUT -->
+            <div style="display:flex;align-items:center;gap:8px;font-family:'Saira Condensed';font-weight:800;font-size:14px;letter-spacing:.08em;color:#13243a;text-transform:uppercase;">📹 Video playout</div>
+
+            <sc-if value="{{ editRow.vHasVideo }}" hint-placeholder-val="{{ false }}">
+              <!-- video cargado -->
+              <div style="border:1px solid #cfe0d4;background:#f1f8f3;border-radius:12px;padding:13px 14px;">
+                <div style="display:flex;align-items:center;gap:9px;">
+                  <span style="font-size:18px;">✅</span>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-family:'Saira Condensed';font-weight:700;font-size:15px;color:#1f6b46;word-break:break-all;">{{ editRow.vName }}</div>
+                    <div style="font-size:11.5px;color:#5b6b80;">{{ editRow.vDurStr }} · {{ editRow.vSizeMB }} MB</div>
+                  </div>
+                  <button onClick="{{ editRow.onVideoRemove }}" title="Quitar video" style="flex:none;width:30px;height:30px;border-radius:8px;border:1px solid #e3b4af;background:#fbe9e7;color:#c0241a;cursor:pointer;">✕</button>
+                </div>
+              </div>
+
+              <!-- modo -->
+              <div>
+                <label style="display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;margin-bottom:7px;">¿Cómo se usa el video?</label>
+                <div style="display:flex;gap:8px;">
+                  <div onClick="{{ editRow.onModeApoyo }}" style="{{ editRow.vApoyoStyle }}">
+                    <div style="font-family:'Saira Condensed';font-weight:800;font-size:14px;">APOYO</div>
+                    <div style="font-size:10.5px;opacity:.85;">mudo · conductor narra</div>
+                  </div>
+                  <div onClick="{{ editRow.onModeNota }}" style="{{ editRow.vNotaStyle }}">
+                    <div style="font-family:'Saira Condensed';font-weight:800;font-size:14px;">NOTA DE VIDEO</div>
+                    <div style="font-size:10.5px;opacity:.85;">pantalla completa · con audio</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- cintillos (solo nota de video) -->
+              <sc-if value="{{ editRow.vIsNota }}" hint-placeholder-val="{{ false }}">
+                <div style="border-top:1px solid #dce2ea;padding-top:13px;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+                    <label style="flex:1;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#647182;">Cintillos del video (entrevistas)</label>
+                    <button onClick="{{ editRow.onHideSuper }}" style="font-family:'Barlow';font-size:11.5px;color:#647182;border:1px solid #cfd6df;background:#fff;border-radius:7px;padding:4px 9px;cursor:pointer;">Ocultar</button>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:8px;">
+                    <sc-for list="{{ editRow.supers }}" as="s" hint-placeholder-count="0">
+                      <div style="display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #d6dce4;border-radius:10px;padding:8px 9px;">
+                        <button onClick="{{ s.onFire }}" title="Mandar al aire" style="flex:none;width:32px;height:32px;border-radius:8px;border:none;background:#0e5aa8;color:#fff;font-size:13px;cursor:pointer;">▶</button>
+                        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;">
+                          <input value="{{ s.name }}" onInput="{{ s.onName }}" placeholder="Nombre" style="width:100%;border:none;outline:none;font-family:'Saira Condensed';font-weight:700;font-size:15px;color:#13243a;" />
+                          <input value="{{ s.role }}" onInput="{{ s.onRole }}" placeholder="Cargo / lugar" style="width:100%;border:none;outline:none;font-family:'Barlow';font-size:12px;color:#5b6b80;" />
+                        </div>
+                        <button onClick="{{ s.onDel }}" style="flex:none;width:28px;height:28px;border-radius:7px;border:1px solid #e3b4af;background:#fbe9e7;color:#c0241a;cursor:pointer;font-size:12px;">✕</button>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <button onClick="{{ editRow.onAddSuper }}" style="margin-top:8px;width:100%;padding:9px;border-radius:9px;border:1px dashed #aac4e4;background:#eef4fb;color:#0e5aa8;font-family:'Saira Condensed';font-weight:700;font-size:13px;cursor:pointer;">+ Agregar cintillo</button>
+                </div>
+              </sc-if>
+
+              <!-- disparo -->
+              <div style="display:flex;gap:8px;border-top:1px solid #dce2ea;padding-top:13px;">
+                <button onClick="{{ editRow.onVideoFire }}" style="{{ editRow.vFireStyle }}">▶ DISPARA EN EL RENDER</button>
+                <button onClick="{{ editRow.onVideoStop }}" style="flex:none;padding:12px 16px;border-radius:10px;border:1px solid #e3b4af;background:#fbe9e7;color:#c0241a;font-family:'Saira Condensed';font-weight:800;font-size:15px;cursor:pointer;">⏹</button>
+              </div>
+              <div style="font-size:11.5px;color:#8a96a6;line-height:1.45;">Al seleccionar la nota el video se <b>pre-carga</b> en el render. <b>DISPARA</b> lo manda al aire (apoyo = mudo con cintillo encima · nota = pantalla completa con audio).</div>
+            </sc-if>
+
+            <sc-if value="{{ editRow.vUploading }}" hint-placeholder-val="{{ false }}">
+              <div style="border:1px solid #aac4e4;background:#eef4fb;border-radius:12px;padding:14px;">
+                <div style="font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#0e5aa8;margin-bottom:8px;">Subiendo… {{ editRow.vProgress }}%</div>
+                <div style="height:8px;border-radius:6px;background:#d4e2f3;overflow:hidden;"><div style="{{ editRow.vBarStyle }}"></div></div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ editRow.vNoVideo }}" hint-placeholder-val="{{ true }}">
+              <label style="display:block;cursor:pointer;">
+                <div style="border:2px dashed #aac4e4;border-radius:12px;padding:30px 18px;text-align:center;color:#5b7da6;background:#f6faff;">
+                  <div style="font-size:30px;margin-bottom:8px;">🎬</div>
+                  <div style="font-family:'Saira Condensed';font-weight:700;font-size:16px;color:#0e5aa8;margin-bottom:4px;">Arrastra un video o haz clic</div>
+                  <div style="font-size:12px;line-height:1.5;">.mp4 · .mov · .webm — máx 2 GB<br/>Se sube a Firebase y se liga a esta nota.</div>
+                </div>
+                <input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" onChange="{{ editRow.onVideoFile }}" style="display:none;" />
+              </label>
+            </sc-if>
           </sc-if>
           <!-- PRODUCCIÓN -->
           <sc-if value="{{ showProd }}" hint-placeholder-val="{{ false }}">
@@ -497,7 +571,7 @@ class Component extends DCLogic {
   rdMut(fn){ this.setState(s=>{ const arr=(s.rundowns[s.hour]||[]).slice(); fn(arr); return {rundowns:{...s.rundowns,[s.hour]:arr}}; }, ()=>this.rdSave()); }
   setHour(h){ this.setState({hour:h, autoIdx:-1, autoElapsed:0, editId:null}); }
   // ===== Panel de edición tipo Notion =====
-  openEdit(id){ this.setState({editId:id, addMenu:false}, ()=>this.pPub()); }
+  openEdit(id){ this.setState({editId:id, addMenu:false}, ()=>{ this.pPub(); this.vPreload(id); }); }
   closeEdit(){ this.setState({editId:null}); }
   // ===== TELEPROMPTER (control desde el RUNDOWN) =====
   pPub(extra, id){
@@ -518,6 +592,40 @@ class Component extends DCLogic {
     try{ if(window.INFO7_FIREBASE_PROMPTER) window.INFO7_FIREBASE_PROMPTER.write(m); }catch(e){} }
   togglePrompter(){ this.setState(s=>({promptOn:!s.promptOn}), ()=>{ if(this.state.promptOn) this.pPub(); }); }
   pDockT(){ this.setState(s=>({pDock:!s.pDock})); }
+  // ===== VIDEO PLAYOUT (sube a Storage · dispara en el render) =====
+  vPub(obj){ const m=Object.assign({sender:'rundown'},obj);
+    try{ localStorage.setItem('info7_video', JSON.stringify(m)); }catch(e){}
+    try{ if(this.vChan) this.vChan.postMessage(m); }catch(e){}
+    try{ if(window.INFO7_FIREBASE_VIDEO) window.INFO7_FIREBASE_VIDEO.write(m); }catch(e){}
+  }
+  vNote(id){ const arr=this.state.rundowns[this.state.hour]||[]; const r=arr.find(x=>x.id===id); return (r&&r.video)||null; }
+  vSetVideo(id, patch){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r){ r.video=Object.assign({mode:'apoyo',supers:[]}, r.video||{}, patch); } }); }
+  async vUpload(id, file){
+    if(!file) return;
+    if(!/\.(mp4|mov|webm|m4v)$/i.test(file.name) && !/^video\//.test(file.type)){ this.setState({syncMsg:'Formato no válido. Usa .mp4 / .mov / .webm.'}); return; }
+    if(file.size > 2*1024*1024*1024){ this.setState({syncMsg:'El video supera 2 GB.'}); return; }
+    if(!window.INFO7_FIREBASE_STORAGE || !window.INFO7_FIREBASE_STORAGE.ready()){ this.setState({syncMsg:'Storage no conectado: revisa firebase-config.js (Blaze + storageBucket).'}); return; }
+    let durSec=0; try{ durSec=await this.vDuration(file); }catch(e){}
+    this.vSetVideo(id, {status:'uploading', progress:0, name:file.name, sizeMB:Math.round(file.size/1048576), durSec});
+    const path='info7-videos/'+id+'_'+Date.now()+'_'+file.name.replace(/[^\w.\-]+/g,'_');
+    try{
+      const res=await window.INFO7_FIREBASE_STORAGE.upload(file, path, (pct)=>this.vSetVideo(id,{progress:pct}));
+      this.vSetVideo(id, {status:'ready', url:res.url, path:res.path});
+      this.setState({syncMsg:'✅ Video listo: '+file.name});
+    }catch(e){ this.vSetVideo(id, {status:'error'}); this.setState({syncMsg:'Error al subir: '+(e&&e.message||e)}); }
+  }
+  vDuration(file){ return new Promise((resolve,reject)=>{ const v=document.createElement('video'); v.preload='metadata'; v.onloadedmetadata=()=>{ URL.revokeObjectURL(v.src); resolve(Math.round(v.duration)||0); }; v.onerror=()=>reject(); v.src=URL.createObjectURL(file); }); }
+  vRemove(id){ const n=this.vNote(id); if(n&&n.path&&window.INFO7_FIREBASE_STORAGE){ try{ window.INFO7_FIREBASE_STORAGE.remove(n.path); }catch(e){} } this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r) delete r.video; }); }
+  vMode(id, mode){ this.vSetVideo(id, {mode}); }
+  vKey(){ this._vk=(this._vk||0)+1; return this._vk; }
+  vPreload(id){ const n=this.vNote(id); if(n&&n.url) this.vPub({action:'preload', url:n.url}); }
+  vFire(id){ const n=this.vNote(id); if(!n||!n.url){ this.setState({syncMsg:'Esta nota no tiene video.'}); return; } this.vPub({action:'play', url:n.url, mode:n.mode||'apoyo', key:this.vKey()}); this.setState({syncMsg:(n.mode==='nota'?'▶ Nota de video al aire (con audio).':'▶ Video de apoyo al aire (mudo).')}); }
+  vStop(){ this.vPub({action:'stop', key:this.vKey()}); this.setState({syncMsg:'⏹ Video detenido.'}); }
+  vAddSuper(id){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r){ r.video=Object.assign({mode:'nota',supers:[]}, r.video||{}); r.video.supers=(r.video.supers||[]).concat([{name:'',role:''}]); } }); }
+  vSuperField(id, idx, k, val){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r&&r.video&&r.video.supers&&r.video.supers[idx]) r.video.supers[idx][k]=val; }); }
+  vDelSuper(id, idx){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r&&r.video&&r.video.supers) r.video.supers.splice(idx,1); }); }
+  vFireSuper(s){ this.vPub({action:'super', name:s.name||'', role:s.role||''}); }
+  vHideSuper(){ this.vPub({action:'super-hide'}); }
   toggleAddMenu(){ this.setState(s=>({addMenu:!s.addMenu})); }
   toggleDock(){ this.setState(s=>({dock:!s.dock})); }
   setPtab(t){ this.setState({ptab:t}); }
@@ -602,6 +710,7 @@ class Component extends DCLogic {
     this._rdSub(); this._inSub(); window.addEventListener('info7-fb-ready', this._fbReady=()=>{ this._rdSub(); this._inSub(); this._pSub(); });
     // TELEPROMPTER
     try{ this.pChan=new BroadcastChannel('info7_prompter'); this.pChan.onmessage=(e)=>{ const d=e.data; if(d&&d.type==='hello') this.pPub(); }; }catch(e){ this.pChan=null; }
+    try{ this.vChan=new BroadcastChannel('info7_video'); }catch(e){ this.vChan=null; }
     this._pSub=()=>{ if(this._pSubbed||!window.INFO7_FIREBASE_PROMPTER) return; this._pSubbed=true; try{ window.INFO7_FIREBASE_PROMPTER.subscribe((d)=>{ if(d&&d.type==='hello') this.pPub(); }); }catch(e){} };
     this._pSub();
   }
@@ -734,6 +843,41 @@ class Component extends DCLogic {
         onDur:(e)=>this.rdDurInput(er.id,e.target.value), onDurBlur:()=>this.rdDurBlur(er.id),
         onDel:()=>{ this.rdDel(er.id); this.closeEdit(); },
         onDup:()=>this.rdDup(er.id) };
+      // ---- VIDEO ----
+      const vid=er.video||null;
+      const vMode=(vid&&vid.mode)||'apoyo';
+      const vStatus=(vid&&vid.status)||(vid&&vid.url?'ready':'empty');
+      editRow.vHasVideo=!!(vid&&vid.url);
+      editRow.vUploading= vStatus==='uploading';
+      editRow.vProgress=(vid&&vid.progress)||0;
+      editRow.vName=(vid&&vid.name)||'';
+      editRow.vSizeMB=(vid&&vid.sizeMB)||0;
+      editRow.vDurStr= vid&&vid.durSec? this.fmtDur(vid.durSec):'';
+      editRow.vUrl=(vid&&vid.url)||'';
+      editRow.vMode=vMode;
+      editRow.vModeApoyo= vMode==='apoyo'; editRow.vModeNota= vMode==='nota';
+      editRow.vIsNota= vMode==='nota';
+      editRow.onVideoFile=(e)=>{ const f=e.target.files&&e.target.files[0]; this.vUpload(er.id,f); e.target.value=''; };
+      editRow.onModeApoyo=()=>this.vMode(er.id,'apoyo');
+      editRow.onModeNota=()=>this.vMode(er.id,'nota');
+      editRow.onVideoRemove=()=>this.vRemove(er.id);
+      editRow.onVideoFire=()=>this.vFire(er.id);
+      editRow.onVideoStop=()=>this.vStop();
+      editRow.onAddSuper=()=>this.vAddSuper(er.id);
+      editRow.onHideSuper=()=>this.vHideSuper();
+      editRow.supers=((vid&&vid.supers)||[]).map((s,i)=>({ name:s.name||'', role:s.role||'',
+        onName:(e)=>this.vSuperField(er.id,i,'name',e.target.value),
+        onRole:(e)=>this.vSuperField(er.id,i,'role',e.target.value),
+        onFire:()=>this.vFireSuper(s),
+        onDel:()=>this.vDelSuper(er.id,i) }));
+      editRow.vNoVideo= !editRow.vHasVideo && !editRow.vUploading;
+      editRow.vBarStyle={height:'100%',width:editRow.vProgress+'%',background:'linear-gradient(90deg,#0e5aa8,#1f7ad6)',transition:'width .2s'};
+      const segBase={flex:'1',cursor:'pointer',textAlign:'center',padding:'10px 8px',borderRadius:'10px',userSelect:'none'};
+      editRow.vApoyoStyle=Object.assign({},segBase, vMode==='apoyo'?{background:'#0e5aa8',color:'#fff',border:'1px solid #0e5aa8'}:{background:'#fff',color:'#5b6b80',border:'1px solid #d6dce4'});
+      editRow.vNotaStyle=Object.assign({},segBase, vMode==='nota'?{background:'#e0241a',color:'#fff',border:'1px solid #e0241a'}:{background:'#fff',color:'#5b6b80',border:'1px solid #d6dce4'});
+      // botón disparar
+      const modeColor= vMode==='nota'? '#e0241a' : '#0e5aa8';
+      editRow.vFireStyle={flex:'1',padding:'12px',borderRadius:'10px',border:'none',background:modeColor,color:'#fff',fontFamily:"'Saira Condensed'",fontWeight:'800',fontSize:'15px',letterSpacing:'.05em',cursor:'pointer'};
     }
     const addItems=[['item','＋ Nota','#0e5aa8'],['block','▦ Bloque / segmento','#1f7ad6'],['corte','⏸ Corte comercial','#e0241a']].map(([t,l,c])=>({t,l,c,on:()=>this.addAndEdit(t)}));
 
@@ -741,7 +885,7 @@ class Component extends DCLogic {
     const hasItemEdit= hasEdit && editRow.isItem;
     const ptab= hasItemEdit? st.ptab : 'detalle';
     const tabStyle=(a)=>({padding:'8px 2px',cursor:'pointer',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'13px',letterSpacing:'.05em',textTransform:'uppercase',color:a?'#13243a':'#6b7888',borderBottom:'2px solid '+(a?'#0e5aa8':'transparent')});
-    const panelTabs=[['detalle','Detalle'],['guion','Guion'],['assets','Assets'],['produccion','Producción']].map(([k,l])=>({k,l,on:()=>this.setPtab(k),style:tabStyle(ptab===k)}));
+    const panelTabs=[['detalle','Detalle'],['guion','Guion'],['assets','Video'],['produccion','Producción']].map(([k,l])=>({k,l,on:()=>this.setPtab(k),style:tabStyle(ptab===k)}));
     const panelWrapStyle= dock
       ? {position:'relative',flex:'none',width:'430px',maxWidth:'46vw',height:'100%',background:'linear-gradient(180deg,#f5f7fa,#ffffff)',borderLeft:'1px solid #d6dce4',display:'flex',flexDirection:'column',zIndex:'5'}
       : {position:'absolute',right:'0',top:'0',height:'100%',width:'430px',maxWidth:'92vw',background:'linear-gradient(180deg,#f5f7fa,#ffffff)',borderLeft:'1px solid #d6dce4',boxShadow:'-24px 0 60px rgba(0,0,0,.5)',display:'flex',flexDirection:'column',zIndex:'50'};

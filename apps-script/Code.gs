@@ -28,8 +28,8 @@
       escritura en la ruta /info7/ingest sólo mientras pruebas.)
    ============================================================================ */
 
-const FIREBASE_URL    = "https://infographics-62747-default-rtdb.firebaseio.com"; // ← cámbialo
-const FIREBASE_SECRET = "ViOZeGQz2RrwHIiNEP9TBLeLS1uusBuoR2viIiUA";                              // ← cámbialo
+const FIREBASE_URL    = "https://TU-PROYECTO-default-rtdb.firebaseio.com"; // ← cámbialo
+const FIREBASE_SECRET = "TU_DATABASE_SECRET";                              // ← cámbialo
 const INGEST_PATH     = "info7/ingest"; // debe coincidir con ingestPath de firebase-config.js
 
 /* ---- Disparadores ---------------------------------------------------------- */
@@ -49,9 +49,9 @@ function instalarDisparador() {
 function onEditPublicar(e) {
   // anti-rebote: agenda una publicación 1.2 s después de la última edición
   PropertiesService.getScriptProperties().setProperty('dirty', String(Date.now()));
-  Utilities.sleep(1200);
+  Utilities.sleep(400);
   var last = Number(PropertiesService.getScriptProperties().getProperty('dirty') || 0);
-  if (Date.now() - last >= 1100) publicarAhora();
+  if (Date.now() - last >= 350) publicarAhora();
 }
 
 /* ---- Publicación ----------------------------------------------------------- */

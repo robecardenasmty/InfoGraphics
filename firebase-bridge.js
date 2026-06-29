@@ -5,10 +5,12 @@
      window.INFO7_FIREBASE          → sincroniza el gráfico AL AIRE (control → render)
      window.INFO7_FIREBASE_RUNDOWN  → sincroniza la ESCALETA entre operadores
      window.INFO7_FIREBASE_INGEST   → RECIBE la escaleta del Excel del productor (Google Sheets → Firebase)
+     window.INFO7_FIREBASE_STORAGE   → sube videos a Storage y devuelve su URL (playout de video)
    Si no hay credenciales, no conecta nada y las páginas siguen en modo local.
    ============================================================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 (function () {
   // Fábrica de un canal con cola (write/subscribe antes de conectar se guardan).
@@ -32,10 +34,31 @@ import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebase
   var rundown = makeChannel();
   var ingest = makeChannel();
   var prompter = makeChannel();
+  var video = makeChannel();
   window.INFO7_FIREBASE = Object.assign(window.INFO7_FIREBASE || {}, program.api);
   window.INFO7_FIREBASE_RUNDOWN = Object.assign(window.INFO7_FIREBASE_RUNDOWN || {}, rundown.api);
   window.INFO7_FIREBASE_INGEST = Object.assign(window.INFO7_FIREBASE_INGEST || {}, ingest.api);
   window.INFO7_FIREBASE_PROMPTER = Object.assign(window.INFO7_FIREBASE_PROMPTER || {}, prompter.api);
+  window.INFO7_FIREBASE_VIDEO = Object.assign(window.INFO7_FIREBASE_VIDEO || {}, video.api);
+
+  // ---- Storage de video (cola: si se llama antes de conectar, se encola) ----
+  var storageImpl = null, storageQueue = [];
+  window.INFO7_FIREBASE_STORAGE = Object.assign(window.INFO7_FIREBASE_STORAGE || {}, {
+    // sube un File; onProgress(0..100); resuelve {url, path}
+    upload: function (file, path, onProgress) {
+      return new Promise(function (resolve, reject) {
+        var run = function () { storageImpl.upload(file, path, onProgress).then(resolve, reject); };
+        if (storageImpl) run(); else storageQueue.push(run);
+      });
+    },
+    remove: function (path) {
+      return new Promise(function (resolve, reject) {
+        var run = function () { storageImpl.remove(path).then(resolve, reject); };
+        if (storageImpl) run(); else storageQueue.push(run);
+      });
+    },
+    ready: function () { return !!storageImpl; }
+  });
 
   var cfg = window.INFO7_FIREBASE_CONFIG;
   if (!(cfg && cfg.databaseURL)) {
@@ -63,6 +86,32 @@ import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebase
     var rPr = ref(db, cfg.prompterPath || "info7/prompter");
     prompter.bind(function (p) { try { set(rPr, { payload: p, t: Date.now() }); } catch (e) {} });
     onValue(rPr, function (snap) { var v = snap.val(); if (v && v.payload) prompter.emit(v.payload); });
+
+    // Video playout: el RUNDOWN/consola manda comandos (play/stop/preload); el render reproduce.
+    var rVid = ref(db, cfg.videoPath || "info7/video");
+    video.bind(function (p) { try { set(rVid, { payload: p, t: Date.now() }); } catch (e) {} });
+    onValue(rVid, function (snap) { var v = snap.val(); if (v && v.payload) video.emit(v.payload); });
+
+    // Storage de video: subir archivo → URL pública (getDownloadURL).
+    try {
+      var storage = getStorage(app);
+      storageImpl = {
+        upload: function (file, path, onProgress) {
+          return new Promise(function (resolve, reject) {
+            var r = sRef(storage, path);
+            var task = uploadBytesResumable(r, file, { contentType: file.type || "video/mp4" });
+            task.on("state_changed",
+              function (s) { if (onProgress) onProgress(Math.round((s.bytesTransferred / s.totalBytes) * 100)); },
+              function (err) { reject(err); },
+              function () { getDownloadURL(task.snapshot.ref).then(function (url) { resolve({ url: url, path: path }); }, reject); }
+            );
+          });
+        },
+        remove: function (path) { return deleteObject(sRef(storage, path)); }
+      };
+      for (var i = 0; i < storageQueue.length; i++) storageQueue[i]();
+      storageQueue = [];
+    } catch (e) { console.warn("INFO 7 · Storage no disponible:", e && e.message); }
 
     window.dispatchEvent(new Event("info7-fb-ready"));
     console.info("INFO 7 · Firebase conectado · gráfico:", cfg.path || "info7/cintillo", "· escaleta:", cfg.rundownPath || "info7/rundown", "· ingesta:", cfg.ingestPath || "info7/ingest", "· prompter:", cfg.prompterPath || "info7/prompter");

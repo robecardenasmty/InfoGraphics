@@ -6,6 +6,8 @@ Sistema de **gráficos para transmisión** (lower thirds, backs y categorías: B
 |---|---|---|
 | `control.html` | **Consola del operador**: cajas **Preview \| Programa**, botón **TAKE / SACAR**, pestañas (Categoría, Textos, Animación, Colores, Elementos·Fondo). | El operador, en cualquier PC o tablet. |
 | `render.html` | **Señal limpia Full HD 1920×1080, fondo transparente** (alfa). Recibe el PROGRAMA y reproduce la animación de entrada/salida. | Se mete fijo a **vMix / OBS** como *Browser Input / Source*. |
+| `escaleta.html` | **Rundown del productor estilo Octopus**: rejilla densa con las columnas del Excel (#, formato, contenido, bajada, duración, hit, backtime, responsable, GC, fuente, gancho), reloj, modo automático, importar Excel, panel **Vista de historia** y panel **TELEPROMPTER** desplegable. | El productor, en su computadora. |
+| `prompter.html` | **Teleprompter del estudio**: pantalla negra con el GUION de la nota seleccionada, autoscroll, espejo, marcador de lectura. Se controla desde el RUNDOWN. | En el **monitor del estudio** (pantalla del conductor). |, medidor de 60:00 y **modo automático** de ensayo de tiempos. Editable y **sincronizado en vivo** con la consola. | El **productor**, en su propia PC. |
 | `Grafico.dc.html` | **Motor gráfico** compartido por consola y render. **No borrar** — los dos lo cargan. | — |
 | `support.js` | Runtime de los gráficos. No se edita. | — |
 | `index.html` | Portada con enlaces a consola y render. | Opcional. |
@@ -97,6 +99,7 @@ vercel --prod # publicar a producción
 ## 4) Usar al aire
 
 - **Operador:** abre `https://TU-PROYECTO.vercel.app/control.html`
+- **Productor:** abre `https://TU-PROYECTO.vercel.app/escaleta.html` — arma el rundown; sus cambios llegan en vivo a la consola del operador (y al revés). El operador es quien hace **TAKE**; la escaleta solo arma la pauta.
 - **vMix / OBS:** agrega un **Browser Input / Browser Source** con `https://TU-PROYECTO.vercel.app/render.html`, en **1920×1080**.
   - vMix detecta el canal alfa del navegador automáticamente (fondo transparente).
   - En OBS, el Browser Source ya respeta la transparencia.
@@ -105,6 +108,13 @@ vercel --prod # publicar a producción
 ### Fondos y chroma
 - En la consola, tarjeta **Fondo & exportar**: `Transparente` (alfa, por defecto), `Estudio`, `Chroma verde`, `Chroma azul` (con **selector de color** propio), o `Imagen propia`.
 - **Sombras de los elementos**: interruptor en *Encender / apagar*. Apágalo para que el chroma quede parejo.
+
+### Teleprompter (estudio)
+- En el RUNDOWN, escribe el guion de cada nota en la pestaña **Guion** del panel *Vista de historia* (el campo "gancho/guion").
+- Pulsa **Prompter** en la barra lateral: se abre un panel con la pantalla del teleprompter y los controles (▶/❚❚, velocidad, tamaño de letra, espejo, marcador). El panel se **acopla o flota** igual que el de Vista de historia.
+- Al **seleccionar una nota** (✎), su guion aparece en el prompter al instante. Editar el guion lo actualiza en vivo.
+- **En el estudio:** abre `https://TU-PROYECTO.vercel.app/prompter.html` en el monitor del conductor (o pulsa **Abrir en estudio ↗**). Recibe el guion y obedece los controles del RUNDOWN al instante (Firebase entre equipos · BroadcastChannel en la misma máquina).
+- **Espejo horizontal** para teleprompters con vidrio; **marcador de lectura** como guía; atajos: `Espacio` play/pausa, `↑/↓` velocidad, `M` espejo, `R` reinicio, `H` ocultar controles.
 
 ---
 
