@@ -207,6 +207,59 @@
                         <label style="display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7e8ea3;margin-bottom:5px;">Gancho / nota editorial</label>
                         <textarea value="{{ r.gancho }}" onInput="{{ r.onGancho }}" rows="2" placeholder="El porqué de la nota, el gancho para retener…" style="width:100%;padding:8px 10px;border-radius:7px;background:#11161f;border:1px solid #2a3340;color:#cdd7e4;font-family:'Barlow';font-size:13px;resize:vertical;outline:none;"></textarea>
                       </div>
+                      <!-- VIDEO PLAYOUT -->
+                      <div style="border-top:1px solid #232c39;padding-top:10px;display:flex;flex-direction:column;gap:9px;">
+                        <div style="display:flex;align-items:center;gap:7px;font-family:'Saira Condensed';font-weight:800;font-size:12px;letter-spacing:.08em;color:#9fd0f5;text-transform:uppercase;">📹 Video playout</div>
+                        <sc-if value="{{ r.vHasVideo }}" hint-placeholder-val="{{ false }}">
+                          <div style="display:flex;align-items:center;gap:8px;background:#0e2419;border:1px solid #1f6b46;border-radius:8px;padding:8px 10px;">
+                            <span>✅</span>
+                            <div style="flex:1;min-width:0;"><div style="font-family:'Saira Condensed';font-weight:700;font-size:13px;color:#5fe39a;word-break:break-all;">{{ r.vName }}</div><div style="font-size:10.5px;color:#7e8ea3;">{{ r.vDurStr }} · {{ r.vSizeMB }} MB</div></div>
+                            <button onClick="{{ r.onVideoRemove }}" title="Quitar" style="flex:none;width:26px;height:26px;border-radius:6px;border:1px solid #5a2420;background:#1f0d0c;color:#ff9a90;cursor:pointer;font-size:11px;">✕</button>
+                          </div>
+                          <div style="display:flex;gap:7px;">
+                            <div onClick="{{ r.onModeApoyo }}" style="{{ r.vApoyoStyle }}">APOYO · mudo</div>
+                            <div onClick="{{ r.onModeNota }}" style="{{ r.vNotaStyle }}">NOTA · audio</div>
+                          </div>
+                          <sc-if value="{{ r.vIsNota }}" hint-placeholder-val="{{ false }}">
+                            <div style="display:flex;flex-direction:column;gap:6px;">
+                              <sc-for list="{{ r.vSupers }}" as="s" hint-placeholder-count="0">
+                                <div style="display:flex;align-items:center;gap:6px;background:#11161f;border:1px solid #2a3340;border-radius:8px;padding:6px 7px;">
+                                  <button onClick="{{ s.onFire }}" title="Al aire" style="flex:none;width:28px;height:28px;border-radius:7px;border:none;background:#2a6fdb;color:#fff;cursor:pointer;font-size:12px;">▶</button>
+                                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;">
+                                    <input value="{{ s.name }}" onInput="{{ s.onName }}" placeholder="Nombre" style="width:100%;border:none;outline:none;background:transparent;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#fff;" />
+                                    <input value="{{ s.role }}" onInput="{{ s.onRole }}" placeholder="Cargo / lugar" style="width:100%;border:none;outline:none;background:transparent;font-family:'Barlow';font-size:11px;color:#9fb0c4;" />
+                                  </div>
+                                  <button onClick="{{ s.onDel }}" style="flex:none;width:24px;height:24px;border-radius:6px;border:1px solid #5a2420;background:#1f0d0c;color:#ff9a90;cursor:pointer;font-size:11px;">✕</button>
+                                </div>
+                              </sc-for>
+                              <div style="display:flex;gap:6px;">
+                                <button onClick="{{ r.onAddSuper }}" style="flex:1;padding:7px;border-radius:8px;border:1px dashed #2a5f8a;background:#0d1f30;color:#9fd0f5;font-family:'Saira Condensed';font-weight:700;font-size:12px;cursor:pointer;">+ Cintillo</button>
+                                <button onClick="{{ r.onHideSuper }}" style="flex:none;padding:7px 11px;border-radius:8px;border:1px solid #2a3340;background:#0e131a;color:#9fb0c4;font-family:'Barlow';font-size:11.5px;cursor:pointer;">Ocultar</button>
+                              </div>
+                            </div>
+                          </sc-if>
+                          <div style="display:flex;gap:7px;">
+                            <button onClick="{{ r.onVideoFire }}" style="{{ r.vFireStyle }}">▶ DISPARA EN RENDER</button>
+                            <button onClick="{{ r.onVideoStop }}" style="flex:none;padding:10px 13px;border-radius:9px;border:1px solid #5a2420;background:#1f0d0c;color:#ff9a90;font-family:'Saira Condensed';font-weight:800;font-size:14px;cursor:pointer;">⏹</button>
+                          </div>
+                        </sc-if>
+                        <sc-if value="{{ r.vUploading }}" hint-placeholder-val="{{ false }}">
+                          <div style="background:#0d1f30;border:1px solid #2a5f8a;border-radius:8px;padding:10px;">
+                            <div style="font-family:'Saira Condensed';font-weight:700;font-size:12px;color:#9fd0f5;margin-bottom:6px;">Subiendo… {{ r.vProgress }}%</div>
+                            <div style="height:7px;border-radius:5px;background:#13283d;overflow:hidden;"><div style="{{ r.vBarStyle }}"></div></div>
+                          </div>
+                        </sc-if>
+                        <sc-if value="{{ r.vNoVideo }}" hint-placeholder-val="{{ true }}">
+                          <label style="display:block;cursor:pointer;">
+                            <div style="border:1.5px dashed #2a5f8a;border-radius:9px;padding:14px;text-align:center;background:#0d1722;color:#7fa8d4;">
+                              <span style="font-size:18px;">🎬</span>
+                              <div style="font-family:'Saira Condensed';font-weight:700;font-size:13px;color:#9fd0f5;margin-top:3px;">Arrastra un video o haz clic</div>
+                              <div style="font-size:10.5px;color:#6f86ad;">.mp4 · .mov · .webm — máx 2 GB</div>
+                            </div>
+                            <input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" onChange="{{ r.onVideoFile }}" style="display:none;" />
+                          </label>
+                        </sc-if>
+                      </div>
                     </div>
                   </sc-if>
                 </sc-if>
@@ -504,6 +557,7 @@ class Component extends DCLogic {
     try{ this.chan=new BroadcastChannel('info7_graphics'); this.chan.onmessage=(e)=>{ if(e.data&&e.data.type==='hello') this.broadcast(); }; }catch(e){ this.chan=null; }
     try{ const raw=localStorage.getItem('info7_rundown_v2'); if(raw) this.rdApply(JSON.parse(raw)); }catch(e){}
     try{ this.rdChan=new BroadcastChannel('info7_rundown'); this.rdChan.onmessage=(e)=>this.rdApply(e.data); }catch(e){ this.rdChan=null; }
+    try{ this.vChan=new BroadcastChannel('info7_video'); }catch(e){ this.vChan=null; }
     try{ this.ctrlChan=new BroadcastChannel('info7_control'); this.ctrlChan.onmessage=(e)=>this.applyCtrl(e.data); if(this.panelMode){ this.ctrlChan.postMessage({t:'req'}); } }catch(e){ this.ctrlChan=null; }
     this._rdSub=()=>{ if(this._rdSubbed||!window.INFO7_FIREBASE_RUNDOWN) return; this._rdSubbed=true; try{ window.INFO7_FIREBASE_RUNDOWN.subscribe((d)=>this.rdApply(d)); }catch(e){} };
     this._inSub=()=>{ if(this._inSubbed||!window.INFO7_FIREBASE_INGEST) return; this._inSubbed=true; try{ window.INFO7_FIREBASE_INGEST.subscribe((d)=>{ if(d&&d.horas&&d.horas.length){ this.mergeIngest(d); const n=d.horas.reduce((a,h)=>a+h.items.filter(i=>i.type==='item').length,0); this.setState({syncMsg:'⟳ Escaleta del productor actualizada · '+d.horas.length+' horas · '+n+' notas.'}); } }); }catch(e){} };
@@ -591,9 +645,68 @@ class Component extends DCLogic {
   rdCycleStatus(id){ const order=['borrador','listo','usado']; this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(!r) return; if(r.status==='aire'){ r.status='listo'; return; } const i=order.indexOf(r.status); r.status=order[(i+1)%order.length]; }); }
   rdDup(id){ this.rdMut(a=>{ const i=a.findIndex(x=>x.id===id); if(i<0) return; const c=JSON.parse(JSON.stringify(a[i])); c.id=this.uid(); if(c.status==='aire') c.status='listo'; a.splice(i+1,0,c); }); }
   rdDel(id){ this.rdMut(a=>{ const i=a.findIndex(x=>x.id===id); if(i>=0) a.splice(i,1); }); }
-  rdLoad(id){ const r=this.curr().find(x=>x.id===id); if(!r||r.type!=='item') return; this.setState({preview:this.gcToSnapshot(r), rdPreviewId:id, tab:'escaleta'}); }
+  rdLoad(id){ const r=this.curr().find(x=>x.id===id); if(!r||r.type!=='item') return; this.setState({preview:this.gcToSnapshot(r), rdPreviewId:id, tab:'escaleta'}); this.vPreload(id); }
   rdExpand(id){ this.setState(s=>({rdExpandId:s.rdExpandId===id?null:id})); }
   reorder(fromId,toId){ if(!fromId||fromId===toId) return; this.rdMut(a=>{ const fi=a.findIndex(x=>x.id===fromId); const ti=a.findIndex(x=>x.id===toId); if(fi<0||ti<0) return; const m=a.splice(fi,1)[0]; a.splice(ti,0,m); }); }
+
+  // ===== VIDEO PLAYOUT (consola: sube / dispara / corrobora) =====
+  vPub(obj){ const m=Object.assign({sender:'control'},obj);
+    try{ localStorage.setItem('info7_video', JSON.stringify(m)); }catch(e){}
+    try{ if(this.vChan) this.vChan.postMessage(m); }catch(e){}
+    try{ if(window.INFO7_FIREBASE_VIDEO) window.INFO7_FIREBASE_VIDEO.write(m); }catch(e){}
+  }
+  vNote(id){ const r=this.curr().find(x=>x.id===id); return (r&&r.video)||null; }
+  vSetVideo(id, patch){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r){ r.video=Object.assign({mode:'apoyo',supers:[]}, r.video||{}, patch); } }); }
+  async vUpload(id, file){
+    if(!file) return;
+    if(!/\.(mp4|mov|webm|m4v)$/i.test(file.name) && !/^video\//.test(file.type)){ this.setState({syncMsg:'Formato no válido. Usa .mp4 / .mov / .webm.'}); return; }
+    if(file.size > 2*1024*1024*1024){ this.setState({syncMsg:'El video supera 2 GB.'}); return; }
+    if(!window.INFO7_FIREBASE_STORAGE || !window.INFO7_FIREBASE_STORAGE.ready()){ this.setState({syncMsg:'Storage no conectado: revisa firebase-config.js (Blaze + storageBucket).'}); return; }
+    let durSec=0; try{ durSec=await this.vDuration(file); }catch(e){}
+    this.vSetVideo(id, {status:'uploading', progress:0, name:file.name, sizeMB:Math.round(file.size/1048576), durSec});
+    const path='info7-videos/'+id+'_'+Date.now()+'_'+file.name.replace(/[^\w.\-]+/g,'_');
+    try{
+      const res=await window.INFO7_FIREBASE_STORAGE.upload(file, path, (pct)=>this.vSetVideo(id,{progress:pct}));
+      this.vSetVideo(id, {status:'ready', url:res.url, path:res.path});
+      this.setState({syncMsg:'✅ Video listo: '+file.name});
+    }catch(e){ this.vSetVideo(id, {status:'error'}); this.setState({syncMsg:'Error al subir: '+(e&&e.message||e)}); }
+  }
+  vDuration(file){ return new Promise((resolve,reject)=>{ const v=document.createElement('video'); v.preload='metadata'; v.onloadedmetadata=()=>{ URL.revokeObjectURL(v.src); resolve(Math.round(v.duration)||0); }; v.onerror=()=>reject(); v.src=URL.createObjectURL(file); }); }
+  vRemove(id){ const n=this.vNote(id); if(n&&n.path&&window.INFO7_FIREBASE_STORAGE){ try{ window.INFO7_FIREBASE_STORAGE.remove(n.path); }catch(e){} } this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r) delete r.video; }); }
+  vMode(id, mode){ this.vSetVideo(id, {mode}); }
+  vKey(){ this._vk=(this._vk||0)+1; return this._vk; }
+  vPreload(id){ const n=this.vNote(id); if(n&&n.url) this.vPub({action:'preload', url:n.url}); }
+  vFire(id){ const n=this.vNote(id); if(!n||!n.url){ this.setState({syncMsg:'Esta nota no tiene video.'}); return; } this.vPub({action:'play', url:n.url, mode:n.mode||'apoyo', key:this.vKey()}); this.setState({syncMsg:(n.mode==='nota'?'▶ Nota de video al aire (con audio).':'▶ Video de apoyo al aire (mudo).')}); }
+  vStop(){ this.vPub({action:'stop', key:this.vKey()}); this.setState({syncMsg:'⏹ Video detenido.'}); }
+  vAddSuper(id){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r){ r.video=Object.assign({mode:'nota',supers:[]}, r.video||{}); r.video.supers=(r.video.supers||[]).concat([{name:'',role:''}]); } }); }
+  vSuperField(id, idx, k, val){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r&&r.video&&r.video.supers&&r.video.supers[idx]) r.video.supers[idx][k]=val; }); }
+  vDelSuper(id, idx){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r&&r.video&&r.video.supers) r.video.supers.splice(idx,1); }); }
+  vFireSuper(s){ this.vPub({action:'super', name:s.name||'', role:s.role||''}); }
+  vHideSuper(){ this.vPub({action:'super-hide'}); }
+  // Props de video para una fila de la escaleta (se esparcen en el objeto de la fila)
+  vRow(r){
+    const vid=r.video||null; const vMode=(vid&&vid.mode)||'apoyo';
+    const vStatus=(vid&&vid.status)||(vid&&vid.url?'ready':'empty');
+    const hasVideo=!!(vid&&vid.url); const uploading= vStatus==='uploading';
+    const segBase={flex:'1',cursor:'pointer',textAlign:'center',padding:'7px 6px',borderRadius:'8px',userSelect:'none',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'13px'};
+    const modeColor= vMode==='nota'? '#e0241a':'#2a6fdb';
+    return {
+      vHasVideo:hasVideo, vUploading:uploading, vNoVideo: !hasVideo && !uploading,
+      vName:(vid&&vid.name)||'', vSizeMB:(vid&&vid.sizeMB)||0, vDurStr: vid&&vid.durSec? this.fmtDur(vid.durSec):'',
+      vProgress:(vid&&vid.progress)||0, vMode, vIsNota: vMode==='nota',
+      vBarStyle:{height:'100%',width:((vid&&vid.progress)||0)+'%',background:'linear-gradient(90deg,#2a6fdb,#5a9bf0)',transition:'width .2s'},
+      vApoyoStyle:Object.assign({},segBase, vMode==='apoyo'?{background:'#2a6fdb',color:'#fff',border:'1px solid #2a6fdb'}:{background:'#0e131a',color:'#9fb0c4',border:'1px solid #2a3340'}),
+      vNotaStyle:Object.assign({},segBase, vMode==='nota'?{background:'#e0241a',color:'#fff',border:'1px solid #e0241a'}:{background:'#0e131a',color:'#9fb0c4',border:'1px solid #2a3340'}),
+      vFireStyle:{flex:'1',padding:'10px',borderRadius:'9px',border:'none',background:modeColor,color:'#fff',fontFamily:"'Saira Condensed'",fontWeight:'800',fontSize:'14px',letterSpacing:'.04em',cursor:'pointer'},
+      onVideoFile:(e)=>{ const f=e.target.files&&e.target.files[0]; this.vUpload(r.id,f); e.target.value=''; },
+      onModeApoyo:()=>this.vMode(r.id,'apoyo'), onModeNota:()=>this.vMode(r.id,'nota'),
+      onVideoRemove:()=>this.vRemove(r.id), onVideoFire:()=>this.vFire(r.id), onVideoStop:()=>this.vStop(),
+      onAddSuper:()=>this.vAddSuper(r.id), onHideSuper:()=>this.vHideSuper(),
+      vSupers:((vid&&vid.supers)||[]).map((s,i)=>({ name:s.name||'', role:s.role||'',
+        onName:(e)=>this.vSuperField(r.id,i,'name',e.target.value), onRole:(e)=>this.vSuperField(r.id,i,'role',e.target.value),
+        onFire:()=>this.vFireSuper(s), onDel:()=>this.vDelSuper(r.id,i) }))
+    };
+  }
 
   sw(on){ return {track:{width:'46px',height:'26px',borderRadius:'999px',background:on?'#f47b20':'#2a3340',border:'1px solid '+(on?'#f47b20':'#39424f'),position:'relative',cursor:'pointer',flex:'none'},knob:{width:'20px',height:'20px',borderRadius:'999px',background:'#fff',position:'absolute',top:'2px',left:on?'22px':'2px',boxShadow:'0 1px 3px rgba(0,0,0,.4)'}}; }
   pill(a){ return {padding:'10px 8px',borderRadius:'9px',border:'1px solid '+(a?'#f47b20':'#2a3340'),background:a?'#241608':'#0e131a',color:a?'#ffd9a8':'#cdd7e4',fontFamily:"'Saira Condensed'",fontWeight:'700',fontSize:'15px',letterSpacing:'.03em',cursor:'pointer',textTransform:'uppercase'}; }
@@ -679,7 +792,7 @@ class Component extends DCLogic {
       itemNo++;
       const isAir=r.status==='aire'; const isPv=st.rdPreviewId===r.id; const used=r.status==='usado';
       const sc=STAT[r.status]||STAT.borrador; const fc=fmtChip(r.formato);
-      return {...base,
+      return {...base, ...this.vRow(r),
         num:String(itemNo).padStart(2,'0'),
         contenido:r.contenido||'', responsable:r.responsable||'', fuente:r.fuente||'', gancho:r.gancho||'', segunda:r.segunda||'',
         gcKind:r.gcKind||'titular',
