@@ -43,6 +43,9 @@
       </div>
       <div style="position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:10px;background:#0a1322;border:2px solid #1f6b46;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);">
         <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#10151c 0 16px,#0d1219 16px 32px);"></div>
+        <sc-if value="{{ pvHasVid }}" hint-placeholder-val="{{ false }}">
+          <video ref="{{ pvVideoRef }}" src="{{ pvVidUrl }}" controls="{{ true }}" playsinline="{{ true }}" preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:1;"></video>
+        </sc-if>
         <div ref="{{ pvScaleRef }}" style="{{ scaleWrap }}">
           <dc-import name="Grafico" gstate="{{ preview }}" animate="{{ false }}" hint-size="1920px,1080px"></dc-import>
         </div>
@@ -66,9 +69,19 @@
         <sc-if value="{{ noSignal }}" hint-placeholder-val="{{ true }}">
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#3c4858;font-family:'Saira Condensed';font-weight:700;font-size:17px;letter-spacing:.14em;">SIN SEÑAL AL AIRE</div>
         </sc-if>
+        <sc-if value="{{ pgHasVid }}" hint-placeholder-val="{{ false }}">
+          <video ref="{{ pgVideoRef }}" src="{{ pgVidUrl }}" muted="{{ true }}" playsinline="{{ true }}" onEnded="{{ onPgEnded }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:1;"></video>
+        </sc-if>
         <sc-if value="{{ progShown }}" hint-placeholder-val="{{ false }}">
           <div style="{{ scaleWrap }}">
             <dc-import name="Grafico" gstate="{{ program }}" animate="{{ true }}" tickers="{{ progTickers }}" hint-size="1920px,1080px"></dc-import>
+          </div>
+        </sc-if>
+        <sc-if value="{{ vShowClock }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:8px;right:8px;z-index:3;display:flex;align-items:center;gap:6px;background:rgba(8,12,18,.82);border:1px solid #C4DD00;border-radius:8px;padding:5px 10px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#C4DD00;box-shadow:0 0 8px #C4DD00;"></span>
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:18px;letter-spacing:.04em;color:#fff;font-variant-numeric:tabular-nums;">{{ vRemain }}</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;font-size:9px;letter-spacing:.12em;color:#9DB805;">RESTANTE</span>
           </div>
         </sc-if>
       </div>
@@ -407,6 +420,8 @@ class Component extends DCLogic {
   constructor(props){
     super(props);
     this.pvScaleRef = React.createRef();
+    this.pvVideoRef = React.createRef();
+    this.pgVideoRef = React.createRef();
     this.ELEMS = ['logo','topbar','cejilla','barraAzul','barraBlanca','ticker'];
     this.ELNAME = {logo:'Logo', topbar:'Barra superior', cejilla:'Cejilla', barraAzul:'Barra azul', barraBlanca:'Barra blanca', ticker:'Ticker'};
     this.ANIMOPTS=[{v:'fade',l:'Fundido'},{v:'left',l:'Izq.'},{v:'right',l:'Der.'},{v:'up',l:'Arriba'},{v:'scale',l:'Escala'},{v:'wipeR',l:'Cortina'},{v:'expand',l:'Expandir'},{v:'rise',l:'Rebote'},{v:'zoom',l:'Zoom'}];
@@ -459,6 +474,7 @@ class Component extends DCLogic {
       program: this.mkState('breaking'),
       hour:'6AM', rundowns:built.rundowns, estrategia:built.estrategia,
       rdPreviewId:null, rdActiveId:null, rdExpandId:null,
+      pvVidUrl:'', pgVidUrl:'', vRemain:'', vPlaying:false,
       syncMsg:'Listo. control.html manda · render.html recibe.',
     };
   }
@@ -563,8 +579,9 @@ class Component extends DCLogic {
     this._rdSub=()=>{ if(this._rdSubbed||!window.INFO7_FIREBASE_RUNDOWN) return; this._rdSubbed=true; try{ window.INFO7_FIREBASE_RUNDOWN.subscribe((d)=>this.rdApply(d)); }catch(e){} };
     this._inSub=()=>{ if(this._inSubbed||!window.INFO7_FIREBASE_INGEST) return; this._inSubbed=true; try{ window.INFO7_FIREBASE_INGEST.subscribe((d)=>{ if(d&&d.horas&&d.horas.length){ this.mergeIngest(d); const n=d.horas.reduce((a,h)=>a+h.items.filter(i=>i.type==='item').length,0); this.setState({syncMsg:'⟳ Escaleta del productor actualizada · '+d.horas.length+' horas · '+n+' notas.'}); } }); }catch(e){} };
     this._rdSub(); this._inSub(); window.addEventListener('info7-fb-ready', this._fbReadyRd=()=>{ this._rdSub(); this._inSub(); });
+    this._vClk=setInterval(()=>this.pgTick(), 250);
   }
-  componentWillUnmount(){ window.removeEventListener('resize',this._onR); if(this._ro)this._ro.disconnect(); if(this.chan)this.chan.close(); if(this.rdChan)this.rdChan.close(); if(this.ctrlChan)this.ctrlChan.close(); if(this._fbReadyRd) window.removeEventListener('info7-fb-ready',this._fbReadyRd); }
+  componentWillUnmount(){ window.removeEventListener('resize',this._onR); if(this._ro)this._ro.disconnect(); if(this.chan)this.chan.close(); if(this.rdChan)this.rdChan.close(); if(this.ctrlChan)this.ctrlChan.close(); if(this._vClk)clearInterval(this._vClk); if(this._fbReadyRd) window.removeEventListener('info7-fb-ready',this._fbReadyRd); }
   componentDidUpdate(){ this.fit(); this.pushCtrl(); }
   fit(){ const el=this.pvScaleRef.current; if(!el) return; const box=el.parentElement; if(!box) return; const s=box.clientWidth/1920; if(s>0 && Math.abs(s-(this._s||0))>0.002){ this._s=s; this.forceUpdate(); } }
 
@@ -646,7 +663,7 @@ class Component extends DCLogic {
   rdCycleStatus(id){ const order=['borrador','listo','usado']; this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(!r) return; if(r.status==='aire'){ r.status='listo'; return; } const i=order.indexOf(r.status); r.status=order[(i+1)%order.length]; }); }
   rdDup(id){ this.rdMut(a=>{ const i=a.findIndex(x=>x.id===id); if(i<0) return; const c=JSON.parse(JSON.stringify(a[i])); c.id=this.uid(); if(c.status==='aire') c.status='listo'; a.splice(i+1,0,c); }); }
   rdDel(id){ this.rdMut(a=>{ const i=a.findIndex(x=>x.id===id); if(i>=0) a.splice(i,1); }); }
-  rdLoad(id){ const r=this.curr().find(x=>x.id===id); if(!r||r.type!=='item') return; this.setState({preview:this.gcToSnapshot(r), rdPreviewId:id, tab:'escaleta'}); this.vPreload(id); }
+  rdLoad(id){ const r=this.curr().find(x=>x.id===id); if(!r||r.type!=='item') return; const n=(r&&r.video)||null; this.setState({preview:this.gcToSnapshot(r), rdPreviewId:id, tab:'escaleta', pvVidUrl:(n&&n.url)||''}); this.vPreload(id); }
   rdExpand(id){ this.setState(s=>({rdExpandId:s.rdExpandId===id?null:id})); }
   reorder(fromId,toId){ if(!fromId||fromId===toId) return; this.rdMut(a=>{ const fi=a.findIndex(x=>x.id===fromId); const ti=a.findIndex(x=>x.id===toId); if(fi<0||ti<0) return; const m=a.splice(fi,1)[0]; a.splice(ti,0,m); }); }
 
@@ -676,10 +693,15 @@ class Component extends DCLogic {
   vDuration(file){ return new Promise((resolve,reject)=>{ const v=document.createElement('video'); v.preload='metadata'; v.onloadedmetadata=()=>{ URL.revokeObjectURL(v.src); resolve(Math.round(v.duration)||0); }; v.onerror=()=>reject(); v.src=URL.createObjectURL(file); }); }
   vRemove(id){ const n=this.vNote(id); if(n&&n.path&&window.INFO7_FIREBASE_STORAGE){ try{ window.INFO7_FIREBASE_STORAGE.remove(n.path); }catch(e){} } this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r) delete r.video; }); }
   vMode(id, mode){ this.vSetVideo(id, {mode}); }
-  vKey(){ this._vk=(this._vk||0)+1; return this._vk; }
+  vKey(){ this._vk=Math.max(Date.now(), (this._vk||0)+1); return this._vk; }
   vPreload(id){ const n=this.vNote(id); if(n&&n.url) this.vPub({action:'preload', url:n.url}); }
-  vFire(id){ const n=this.vNote(id); if(!n||!n.url){ this.setState({syncMsg:'Esta nota no tiene video.'}); return; } this.vPub({action:'play', url:n.url, mode:n.mode||'apoyo', key:this.vKey()}); this.setState({syncMsg:(n.mode==='nota'?'▶ Nota de video al aire (con audio).':'▶ Video de apoyo al aire (mudo).')}); }
-  vStop(){ this.vPub({action:'stop', key:this.vKey()}); this.setState({syncMsg:'⏹ Video detenido.'}); }
+  vFire(id){ const n=this.vNote(id); if(!n||!n.url){ this.setState({syncMsg:'Esta nota no tiene video.'}); return; } this.vPub({action:'play', url:n.url, mode:n.mode||'apoyo', key:this.vKey()}); this.pgPlay(n.url); this.setState({syncMsg:(n.mode==='nota'?'▶ Nota de video al aire (con audio).':'▶ Video de apoyo al aire (mudo).')}); }
+  vStop(){ this.vPub({action:'stop', key:this.vKey()}); this.pgStop(); this.setState({syncMsg:'⏹ Video detenido.'}); }
+  // Monitor de PROGRAMA: espeja el video al aire desde el inicio + cronómetro de cuenta regresiva.
+  pgPlay(url){ this.setState({pgVidUrl:url, vPlaying:true, vRemain:''}, ()=>{ const v=this.pgVideoRef.current; if(v){ try{ v.currentTime=0; }catch(e){} v.muted=true; const pr=v.play(); if(pr&&pr.catch) pr.catch(()=>{}); } }); }
+  pgStop(){ const v=this.pgVideoRef.current; if(v){ try{ v.pause(); }catch(e){} } this.setState({pgVidUrl:'', vPlaying:false, vRemain:''}); }
+  pgTick(){ const v=this.pgVideoRef.current; if(!v||!this.state.vPlaying) return; const rem=Math.max(0,(v.duration||0)-(v.currentTime||0)); if(isFinite(rem)){ const m=(rem/60)|0, s=Math.ceil(rem%60); this.setState({vRemain:m+':'+(s<10?'0':'')+s}); } }
+  pgEnded(){ this.setState({pgVidUrl:'', vPlaying:false, vRemain:''}); }
   vAddSuper(id){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r){ r.video=Object.assign({mode:'nota',supers:[]}, r.video||{}); r.video.supers=(r.video.supers||[]).concat([{name:'',role:''}]); } }); }
   vSuperField(id, idx, k, val){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r&&r.video&&r.video.supers&&r.video.supers[idx]) r.video.supers[idx][k]=val; }); }
   vDelSuper(id, idx){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r&&r.video&&r.video.supers) r.video.supers.splice(idx,1); }); }
@@ -839,6 +861,11 @@ class Component extends DCLogic {
       rdRows, rdCount, rdTotal:this.fmtDur(total), rdTarget:'60:00', meterColor, meterDiff,
       rdAddFromPreview:()=>this.rdAddFromPreview(), rdAddBlock:()=>this.rdAddBlock(), rdAddBreak:()=>this.rdAddBreak(), rdBtnPrimary,
       preview:p, program:st.program, onAir:st.onAir,
+      pvVideoRef:this.pvVideoRef, pgVideoRef:this.pgVideoRef,
+      pvHasVid:!!st.pvVidUrl, pvVidUrl:st.pvVidUrl,
+      pgHasVid:!!st.pgVidUrl, pgVidUrl:st.pgVidUrl,
+      vRemain:st.vRemain, vShowClock:!!(st.vPlaying && st.vRemain),
+      onPgEnded:()=>this.pgEnded(),
       progShown:st.progShown, progTickers:st.progTickers,
       anyLive, noSignal: !anyLive,
       liveChips, hasChips: st.progShown && liveChips.length>0,
