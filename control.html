@@ -55,8 +55,10 @@
             </div>
           </div>
         </sc-if>
-        <div ref="{{ pvScaleRef }}" style="{{ scaleWrap }}">
-          <dc-import name="Grafico" gstate="{{ preview }}" animate="{{ false }}" hint-size="1920px,1080px"></dc-import>
+        <div style="position:absolute;inset:0;z-index:3;pointer-events:none;">
+          <div ref="{{ pvScaleRef }}" style="{{ scaleWrap }}">
+            <dc-import name="Grafico" gstate="{{ preview }}" animate="{{ false }}" hint-size="1920px,1080px"></dc-import>
+          </div>
         </div>
       </div>
     </div>
@@ -82,8 +84,10 @@
           <video ref="{{ pgVideoRef }}" src="{{ pgVidUrl }}" muted="{{ true }}" playsinline="{{ true }}" onEnded="{{ onPgEnded }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:1;"></video>
         </sc-if>
         <sc-if value="{{ progShown }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;inset:0;z-index:2;">
           <div style="{{ scaleWrap }}">
             <dc-import name="Grafico" gstate="{{ program }}" animate="{{ true }}" tickers="{{ progTickers }}" hint-size="1920px,1080px"></dc-import>
+          </div>
           </div>
         </sc-if>
         <sc-if value="{{ vShowClock }}" hint-placeholder-val="{{ false }}">
@@ -617,7 +621,13 @@ class Component extends DCLogic {
       let rundowns=s.rundowns;
       if(s.rdPreviewId){ const arr=(s.rundowns[s.hour]||[]).map(r=>{ if(r.type!=='item') return r; if(r.id===s.rdPreviewId) return {...r,status:'aire'}; if(r.status==='aire') return {...r,status:'usado'}; return r; }); rundowns={...s.rundowns,[s.hour]:arr}; }
       return { program, onAir:true, progShown:true, progTickers:tickers, liveState:live, pgmId:s.pgmId+1, rundowns, rdActiveId:s.rdPreviewId||s.rdActiveId };
-    }, ()=>{ this.broadcast(); this.rdSave(); });
+    }, ()=>{ this.broadcast(); this.rdSave();
+      // Si la nota cargada trae video, dispáralo al aire JUNTO con el cintillo (composición completa).
+      const n=this.state.rdPreviewId?this.vNote(this.state.rdPreviewId):null;
+      if(n&&n.url){ this.vPub({action:'play', url:n.url, mode:n.mode||'apoyo', key:this.vKey()}); this.pgPlay(n.url);
+        if(this.state.pvSuperShow && this.state.pvSuper && (this.state.pvSuper.name||this.state.pvSuper.role)){ this.vPub({action:'super', name:this.state.pvSuper.name||'', role:this.state.pvSuper.role||''}); }
+      }
+    });
   }
   out(){
     if(!this.state.onAir) return;
