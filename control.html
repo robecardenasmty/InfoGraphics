@@ -46,6 +46,15 @@
         <sc-if value="{{ pvHasVid }}" hint-placeholder-val="{{ false }}">
           <video ref="{{ pvVideoRef }}" src="{{ pvVidUrl }}" controls="{{ true }}" playsinline="{{ true }}" preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:1;"></video>
         </sc-if>
+        <sc-if value="{{ pvSuperShow }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:6%;bottom:14%;z-index:2;display:flex;align-items:stretch;border-radius:0 6px 6px 0;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.4);max-width:62%;">
+            <div style="width:5px;background:linear-gradient(180deg,#C4DD00,#9DB805);flex:none;"></div>
+            <div style="background:linear-gradient(180deg,#fff,#eef1f5);padding:5px 12px;min-width:0;">
+              <div style="font-family:'Saira Condensed';font-weight:800;font-size:18px;line-height:1.04;color:#141414;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pvSuperName }}</div>
+              <div style="font-family:'Barlow';font-weight:600;font-size:10px;color:#52627a;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pvSuperRole }}</div>
+            </div>
+          </div>
+        </sc-if>
         <div ref="{{ pvScaleRef }}" style="{{ scaleWrap }}">
           <dc-import name="Grafico" gstate="{{ preview }}" animate="{{ false }}" hint-size="1920px,1080px"></dc-import>
         </div>
@@ -474,7 +483,7 @@ class Component extends DCLogic {
       program: this.mkState('breaking'),
       hour:'6AM', rundowns:built.rundowns, estrategia:built.estrategia,
       rdPreviewId:null, rdActiveId:null, rdExpandId:null,
-      pvVidUrl:'', pgVidUrl:'', vRemain:'', vPlaying:false,
+      pvVidUrl:'', pgVidUrl:'', vRemain:'', vPlaying:false, pvSuper:null, pvSuperShow:false,
       syncMsg:'Listo. control.html manda · render.html recibe.',
     };
   }
@@ -650,7 +659,11 @@ class Component extends DCLogic {
   }
   rdApply(data){ if(!data||!data.rundowns) return; // solo formato v2 (por hora)
     const rundowns=data.rundowns;
-    const sig=JSON.stringify({rundowns}); if(sig===this._rdSig) return; this._rdSig=sig; this.setState({rundowns});
+    const sig=JSON.stringify({rundowns}); if(sig===this._rdSig) return; this._rdSig=sig;
+    // Si la nota cargada en Preview ya no existe (la borraron en el rundown), limpia el Preview.
+    let extra={};
+    if(this.state.rdPreviewId){ const arr=rundowns[this.state.hour]||[]; if(!arr.some(r=>r.id===this.state.rdPreviewId)){ extra={rdPreviewId:null, pvVidUrl:'', pvSuper:null, pvSuperShow:false, preview:this.mkState('breaking')}; } }
+    this.setState(Object.assign({rundowns}, extra));
   }
   rdMut(fn){ this.setState(s=>{ const arr=(s.rundowns[s.hour]||[]).slice(); fn(arr); return {rundowns:{...s.rundowns,[s.hour]:arr}}; }, ()=>this.rdSave()); }
   setHour(h){ this.setState({hour:h, rdExpandId:null}); }
@@ -663,7 +676,7 @@ class Component extends DCLogic {
   rdCycleStatus(id){ const order=['borrador','listo','usado']; this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(!r) return; if(r.status==='aire'){ r.status='listo'; return; } const i=order.indexOf(r.status); r.status=order[(i+1)%order.length]; }); }
   rdDup(id){ this.rdMut(a=>{ const i=a.findIndex(x=>x.id===id); if(i<0) return; const c=JSON.parse(JSON.stringify(a[i])); c.id=this.uid(); if(c.status==='aire') c.status='listo'; a.splice(i+1,0,c); }); }
   rdDel(id){ this.rdMut(a=>{ const i=a.findIndex(x=>x.id===id); if(i>=0) a.splice(i,1); }); }
-  rdLoad(id){ const r=this.curr().find(x=>x.id===id); if(!r||r.type!=='item') return; const n=(r&&r.video)||null; this.setState({preview:this.gcToSnapshot(r), rdPreviewId:id, tab:'escaleta', pvVidUrl:(n&&n.url)||''}); this.vPreload(id); }
+  rdLoad(id){ const r=this.curr().find(x=>x.id===id); if(!r||r.type!=='item') return; const n=(r&&r.video)||null; const sups=(n&&n.mode==='nota'&&n.supers&&n.supers.length)?n.supers:null; this.setState({preview:this.gcToSnapshot(r), rdPreviewId:id, tab:'escaleta', pvVidUrl:(n&&n.url)||'', pvSuper:sups?sups[0]:null, pvSuperShow:!!sups}); this.vPreload(id); }
   rdExpand(id){ this.setState(s=>({rdExpandId:s.rdExpandId===id?null:id})); }
   reorder(fromId,toId){ if(!fromId||fromId===toId) return; this.rdMut(a=>{ const fi=a.findIndex(x=>x.id===fromId); const ti=a.findIndex(x=>x.id===toId); if(fi<0||ti<0) return; const m=a.splice(fi,1)[0]; a.splice(ti,0,m); }); }
 
@@ -705,8 +718,8 @@ class Component extends DCLogic {
   vAddSuper(id){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r){ r.video=Object.assign({mode:'nota',supers:[]}, r.video||{}); r.video.supers=(r.video.supers||[]).concat([{name:'',role:''}]); } }); }
   vSuperField(id, idx, k, val){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r&&r.video&&r.video.supers&&r.video.supers[idx]) r.video.supers[idx][k]=val; }); }
   vDelSuper(id, idx){ this.rdMut(a=>{ const r=a.find(x=>x.id===id); if(r&&r.video&&r.video.supers) r.video.supers.splice(idx,1); }); }
-  vFireSuper(s){ this.vPub({action:'super', name:s.name||'', role:s.role||''}); }
-  vHideSuper(){ this.vPub({action:'super-hide'}); }
+  vFireSuper(s){ this.vPub({action:'super', name:s.name||'', role:s.role||''}); this.setState({pvSuper:s, pvSuperShow:true}); }
+  vHideSuper(){ this.vPub({action:'super-hide'}); this.setState({pvSuperShow:false}); }
   // Props de video para una fila de la escaleta (se esparcen en el objeto de la fila)
   vRow(r){
     const vid=r.video||null; const vMode=(vid&&vid.mode)||'apoyo';
@@ -863,6 +876,8 @@ class Component extends DCLogic {
       preview:p, program:st.program, onAir:st.onAir,
       pvVideoRef:this.pvVideoRef, pgVideoRef:this.pgVideoRef,
       pvHasVid:!!st.pvVidUrl, pvVidUrl:st.pvVidUrl,
+      pvSuperShow: st.pvSuperShow && !!st.pvSuper && !!(st.pvSuper.name||st.pvSuper.role),
+      pvSuperName: st.pvSuper?(st.pvSuper.name||''):'', pvSuperRole: st.pvSuper?(st.pvSuper.role||''):'',
       pgHasVid:!!st.pgVidUrl, pgVidUrl:st.pgVidUrl,
       vRemain:st.vRemain, vShowClock:!!(st.vPlaying && st.vRemain),
       onPgEnded:()=>this.pgEnded(),
