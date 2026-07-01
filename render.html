@@ -56,8 +56,14 @@ class Component extends DCLogic {
     window.addEventListener('info7-fb-ready', this._fbReady=()=>this._fbSub());
     try{ if(this.chan) this.chan.postMessage({type:'hello'}); }catch(e){}
     // ----- canal de VIDEO -----
+    // Al cargar/refrescar NO se debe reproducir el último video. Como cada disparo
+    // lleva una key = hora exacta (Date.now()), ignoramos cualquier video cuya key
+    // sea ANTERIOR al momento en que se cargó esta página: solo entran disparos NUEVOS.
+    this._loadT = Date.now();
+    this._vk=0;
+    try{ const raw0=localStorage.getItem('info7_video'); if(raw0){ const p0=JSON.parse(raw0); if(p0&&p0.key) this._vk=p0.key; } }catch(e){}
     try{ this.vchan=new BroadcastChannel('info7_video'); this.vchan.onmessage=(e)=>this.onVideo(e.data); }catch(e){ this.vchan=null; }
-    try{ const raw=localStorage.getItem('info7_video'); if(raw){ this.onVideo(JSON.parse(raw)); } }catch(e){}
+    try{ this._vsig=localStorage.getItem('info7_video')||''; }catch(e){}
     this._vpoll=setInterval(()=>{ try{ const raw=localStorage.getItem('info7_video'); if(!raw)return; if(raw!==this._vsig){ this._vsig=raw; this.onVideo(JSON.parse(raw)); } }catch(e){} },250);
     this._vfbSub();
     window.addEventListener('info7-fb-ready', this._vfbReady=()=>this._vfbSub());
@@ -68,7 +74,10 @@ class Component extends DCLogic {
 
   onVideo(p){
     if(!p||!p.action) return;
-    if((p.key||0)===this._vk && p.action!=='preload') return;
+    // Disparo con key anterior a la carga de la página = eco viejo (refresh). Ignorar.
+    if((p.action==='play') && (p.key||0) < this._loadT) return;
+    if((p.action==='play') && (p.key||0)<=this._vk) return;
+    if((p.key||0)===this._vk && p.action!=='preload' && p.action!=='play') return;
     const v=this.videoRef.current;
     if(p.action==='preload'){
       if(v && p.url && v.getAttribute('data-src')!==p.url){ v.src=p.url; v.setAttribute('data-src',p.url); v.muted=true; try{v.load();}catch(e){} }
